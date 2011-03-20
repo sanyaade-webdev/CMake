@@ -51,6 +51,14 @@
 #  define CMAKE_USE_ECLIPSE
 #endif
 
+// Only build Ninja generator on non-windows platforms (until Ninja is ported
+// to Windows) and when not bootstrapping cmake.
+#if !defined(_WIN32)
+#  if defined(CMAKE_BUILD_WITH_CMAKE)
+#    define CMAKE_USE_NINJA
+#  endif
+#endif
+
 #if defined(__MINGW32__) && !defined(CMAKE_BUILD_WITH_CMAKE)
 # define CMAKE_BOOT_MINGW
 #endif
@@ -83,6 +91,10 @@
 #else
 #endif
 #include "cmGlobalUnixMakefileGenerator3.h"
+
+#ifdef CMAKE_USE_NINJA
+#  include "cmGlobalNinjaGenerator.h"
+#endif
 
 #if defined(CMAKE_HAVE_VS_GENERATORS)
 #include "cmCallVisualStudioMacro.h"
@@ -2614,6 +2626,10 @@ void cmake::AddDefaultGenerators()
 #endif
   this->Generators[cmGlobalUnixMakefileGenerator3::GetActualName()] =
     &cmGlobalUnixMakefileGenerator3::New;
+#ifdef CMAKE_USE_NINJA
+  this->Generators[cmGlobalNinjaGenerator::GetActualName()] =
+    &cmGlobalNinjaGenerator::New;
+#endif
 #ifdef CMAKE_USE_XCODE
   this->Generators[cmGlobalXCodeGenerator::GetActualName()] =
     &cmGlobalXCodeGenerator::New;
