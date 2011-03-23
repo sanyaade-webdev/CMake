@@ -188,6 +188,7 @@ SET(SRCS
   cmGlobalUnixMakefileGenerator3.h
   cmGlobalNinjaGenerator.cxx
   cmGlobalNinjaGenerator.h
+  cmNinjaTypes.h
   cmGraphAdjacencyList.h
   cmGraphVizWriter.cxx
   cmGraphVizWriter.h
@@ -209,6 +210,11 @@ SET(SRCS
   cmLocalGenerator.h
   cmLocalUnixMakefileGenerator3.cxx
   cmLocalNinjaGenerator.cxx
+  cmLocalNinjaGenerator.h
+  cmNinjaTargetGenerator.cxx
+  cmNinjaTargetGenerator.h
+  cmNinjaExecutableTargetGenerator.cxx
+  cmNinjaExecutableTargetGenerator.h
   cmMakeDepend.cxx
   cmMakeDepend.h
   cmMakefile.cxx

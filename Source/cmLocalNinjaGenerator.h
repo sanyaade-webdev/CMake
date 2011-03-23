@@ -14,6 +14,9 @@
 
 #  include "cmLocalGenerator.h"
 
+class cmGlobalNinjaGenerator;
+class cmGeneratedFileStream;
+
 /**
  * \class cmLocalNinjaGenerator
  * \brief Write a local build.ninja file.
@@ -75,6 +78,15 @@ public:
   /// Overloaded methods. @see cmLocalGenerator::GetTargetDirectory()
   virtual std::string GetTargetDirectory(cmTarget const& target) const;
 
+public:
+  cmGlobalNinjaGenerator* GetGlobalNinjaGenerator() const;
+
+  const char* GetConfigName() const
+  { return this->ConfigName.c_str(); }
+
+  std::string GetObjectFileName(const cmTarget& target,
+                                const cmSourceFile& source);
+
 protected:
 
   /// Overloaded methods. @see cmLocalGenerator::OutputLinkLibraries()
@@ -84,6 +96,24 @@ protected:
 
   /// Overloaded methods. @see cmLocalGenerator::CheckDefinition()
   virtual bool CheckDefinition(std::string const& define) const;
+
+private:
+  // In order to access to protected member of the local generator.
+  friend class cmNinjaTargetGenerator;
+  friend class cmNinjaExecutableTargetGenerator;
+
+
+private:
+  cmGeneratedFileStream& GetBuildFileStream() const;
+  cmGeneratedFileStream& GetRulesFileStream() const;
+
+  void WriteProjectHeader(std::ostream& os);
+  void WriteNinjaFilesInclusion(std::ostream& os);
+
+  void SetConfigName();
+
+private:
+  std::string ConfigName;
 };
 
 #endif // ! cmLocalNinjaGenerator_h

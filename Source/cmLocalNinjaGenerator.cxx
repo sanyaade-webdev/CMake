@@ -11,9 +11,14 @@
 ============================================================================*/
 #include "cmLocalNinjaGenerator.h"
 #include "cmMakefile.h"
+#include "cmGlobalNinjaGenerator.h"
+#include "cmNinjaTargetGenerator.h"
+#include "cmGeneratedFileStream.h"
+#include "cmSourceFile.h"
 
 cmLocalNinjaGenerator::cmLocalNinjaGenerator()
   : cmLocalGenerator()
+  , ConfigName("")
 {
   // TODO(Nicolas Despres): Maybe I should set this one to true??
   this->IsMakefileGenerator = false;
@@ -29,7 +34,22 @@ cmLocalNinjaGenerator::~cmLocalNinjaGenerator()
 void cmLocalNinjaGenerator::Generate()
 {
   std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::Generate();
+
+  this->SetConfigName();
+  this->WriteProjectHeader(this->GetBuildFileStream());
+  this->WriteNinjaFilesInclusion(this->GetBuildFileStream());
+
+  cmTargets& targets = this->GetMakefile()->GetTargets();
+  for(cmTargets::iterator t = targets.begin(); t != targets.end(); ++t)
+    {
+    cmNinjaTargetGenerator* tg = cmNinjaTargetGenerator::New(&t->second);
+    if(tg)
+      {
+      tg->Generate();
+      delete tg;
+      }
+    }
+
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
 }
 
@@ -41,7 +61,12 @@ void cmLocalNinjaGenerator::Generate()
 void cmLocalNinjaGenerator::Configure()
 {
   std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::Configure();
+
+  // NOTE: cmLocalUnixMakefileGenerator3::Configure() compute
+  // a path used to write rules in Makefiles later. We will see if
+  // we need such a thing later.
+  this->cmLocalGenerator::Configure();
+
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
 }
 
@@ -157,9 +182,9 @@ void cmLocalNinjaGenerator
             << " type: '" << cmTarget::TargetTypeNames(target->GetType()) << "'"
             << std::endl;
   std::cout << "DEBUG NINJA: ARG: dirs: ";
-  for (std::vector<std::string>::const_iterator d = dirs.begin();
-       d != dirs.end();
-       ++d)
+  for(std::vector<std::string>::const_iterator d = dirs.begin();
+      d != dirs.end();
+      ++d)
     std::cout << "'" << *d << "', ";
   std::cout << std::endl;
 
@@ -168,20 +193,59 @@ void cmLocalNinjaGenerator
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
 }
 
-// Implemented and used in almost all cmLocalGenerator sub-classes.
+// TODO(Nicolas Despres): Picked up from cmLocalUnixMakefileGenerator3.
+// Refactor it.
 std::string cmLocalNinjaGenerator
 ::GetTargetDirectory(cmTarget const& target) const
 {
-  std::cout << "DEBUG NINJA: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cout << "DEBUG NINJA: ARG: target: "
-            << " name: '" << target.GetName() << "'"
-            << " type: '" << cmTarget::TargetTypeNames(target.GetType()) << "'"
-            << std::endl;
+  std::string dir = cmake::GetCMakeFilesDirectoryPostSlash();
+  dir += target.GetName();
+#if defined(__VMS)
+  dir += "_dir";
+#else
+  dir += ".dir";
+#endif
+  return dir;
+}
 
-  std::string ret = cmLocalGenerator::GetTargetDirectory(target);
+//----------------------------------------------------------------------------
+// Non-virtual public methods.
 
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
+cmGlobalNinjaGenerator* cmLocalNinjaGenerator::GetGlobalNinjaGenerator() const
+{
+  return static_cast<cmGlobalNinjaGenerator*>(this->GetGlobalGenerator());
+}
+
+// TODO(Nicolas Despres): Picked up from cmLocalUnixMakefileGenerator3.
+// Refactor it.
+std::string
+cmLocalNinjaGenerator
+::GetObjectFileName(const cmTarget& target,
+                    const cmSourceFile& source)
+{
+  // Make sure we never hit this old case.
+  if(source.GetProperty("MACOSX_PACKAGE_LOCATION"))
+    {
+    std::string msg = "MACOSX_PACKAGE_LOCATION set on source file: ";
+    msg += source.GetFullPath();
+    this->GetMakefile()->IssueMessage(cmake::INTERNAL_ERROR,
+                                      msg.c_str());
+    }
+
+  // Start with the target directory.
+  std::string obj = this->GetTargetDirectory(target);
+  obj += "/";
+
+  // Get the object file name without the target directory.
+  std::string dir_max;
+  dir_max += this->Makefile->GetCurrentOutputDirectory();
+  dir_max += "/";
+  dir_max += obj;
+  std::string objectName =
+    this->GetObjectFileNameWithoutTarget(source, dir_max, 0);
+  // Append the object name to the target directory.
+  obj += objectName;
+  return obj;
 }
 
 //----------------------------------------------------------------------------
@@ -221,4 +285,55 @@ bool cmLocalNinjaGenerator::CheckDefinition(std::string const& define) const
 
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
   return ret;
+}
+
+//----------------------------------------------------------------------------
+// Private methods.
+
+cmGeneratedFileStream& cmLocalNinjaGenerator::GetBuildFileStream() const
+{
+  return *this->GetGlobalNinjaGenerator()->GetBuildFileStream();
+}
+
+cmGeneratedFileStream& cmLocalNinjaGenerator::GetRulesFileStream() const
+{
+  return *this->GetGlobalNinjaGenerator()->GetRulesFileStream();
+}
+
+void cmLocalNinjaGenerator::WriteProjectHeader(std::ostream& os)
+{
+  cmGlobalNinjaGenerator::WriteDivider(os);
+  os
+    << "# Project: " << this->GetMakefile()->GetProjectName() << "\n"
+    << "# Configuration: " << this->ConfigName << "\n"
+    << "\n"
+    ;
+}
+
+void cmLocalNinjaGenerator::WriteNinjaFilesInclusion(std::ostream& os)
+{
+  cmGlobalNinjaGenerator::WriteDivider(os);
+  os
+    << "# Include auxiliary files.\n"
+    << "\n"
+    ;
+  cmGlobalNinjaGenerator::WriteInclude(os,
+                                       cmGlobalNinjaGenerator::NINJA_RULES_FILE,
+                                       "Include rules file.");
+  os << "\n";
+}
+
+void cmLocalNinjaGenerator::SetConfigName()
+{
+  // Store the configuration name that will be generated.
+  if(const char* config = this->GetMakefile()->GetDefinition("CMAKE_BUILD_TYPE"))
+    {
+    // Use the build type given by the user.
+    this->ConfigName = config;
+    }
+  else
+    {
+    // No configuration type given.
+    this->ConfigName = "";
+    }
 }
