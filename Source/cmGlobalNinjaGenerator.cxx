@@ -419,16 +419,31 @@ std::string cmGlobalNinjaGenerator
   std::cout << "DEBUG NINJA: ARG: ignoreErrors: '" << ignoreErrors << "'" << std::endl;
   std::cout << "DEBUG NINJA: ARG: fast: '" << fast << "'" << std::endl;
 
-  std::string ret = cmGlobalGenerator::GenerateBuildCommand(makeProgram,
-                                                            projectName,
-                                                            additionalOptions,
-                                                            targetName,
-                                                            config,
-                                                            ignoreErrors,
-                                                            fast);
+  // Project name and config are not used yet.
+  (void)projectName;
+  (void)config;
+  // Ninja does not have -i equivalent option yet.
+  (void)ignoreErrors;
+  // We do not handle fast build yet.
+  (void)fast;
 
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
+  std::string makeCommand =
+    cmSystemTools::ConvertToUnixOutputPath(makeProgram);
+
+  if(additionalOptions)
+    {
+    makeCommand += " ";
+    makeCommand += additionalOptions;
+    }
+  if(targetName)
+    {
+    makeCommand += " ";
+    makeCommand += targetName;
+    }
+
+  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__
+            << " RESULT='" << makeCommand << "'" << std::endl;
+  return makeCommand;
 }
 
 // Not implemented in UnixMakefile generator.
