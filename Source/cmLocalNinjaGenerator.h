@@ -13,6 +13,7 @@
 #  define cmLocalNinjaGenerator_h
 
 #  include "cmLocalGenerator.h"
+#  include "cmNinjaTypes.h"
 
 class cmGlobalNinjaGenerator;
 class cmGeneratedFileStream;
@@ -109,11 +110,15 @@ private:
 
   void WriteProjectHeader(std::ostream& os);
   void WriteNinjaFilesInclusion(std::ostream& os);
+  void WriteBuiltinTargets(std::ostream& os);
+  void WriteTargetAll(std::ostream& os);
+  void AddDependencyToAll(const std::string& dependency);
 
   void SetConfigName();
 
 private:
   std::string ConfigName;
+  cmNinjaDeps AllDependencies;
 };
 
 #endif // ! cmLocalNinjaGenerator_h

@@ -274,6 +274,8 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
   // Compute outputs.
   cmNinjaDeps outputs;
   outputs.insert(this->TargetNameOut);
+  // Add this executable to the all target.
+  this->GetLocalGenerator()->AddDependencyToAll(this->TargetNameOut);
 
   const char* linkLanguage =
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());

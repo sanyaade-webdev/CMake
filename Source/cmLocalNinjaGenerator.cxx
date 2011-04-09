@@ -19,6 +19,7 @@
 cmLocalNinjaGenerator::cmLocalNinjaGenerator()
   : cmLocalGenerator()
   , ConfigName("")
+  , AllDependencies()
 {
   // TODO(Nicolas Despres): Maybe I should set this one to true??
   this->IsMakefileGenerator = false;
@@ -49,6 +50,8 @@ void cmLocalNinjaGenerator::Generate()
       delete tg;
       }
     }
+
+  this->WriteBuiltinTargets(this->GetBuildFileStream());
 
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
 }
@@ -336,4 +339,36 @@ void cmLocalNinjaGenerator::SetConfigName()
     // No configuration type given.
     this->ConfigName = "";
     }
+}
+
+void cmLocalNinjaGenerator::WriteBuiltinTargets(std::ostream& os)
+{
+  // Write headers.
+  cmGlobalNinjaGenerator::WriteDivider(os);
+  os << "# Built-in targets\n\n";
+
+  this->WriteTargetAll(os);
+}
+
+
+void cmLocalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
+{
+  this->AllDependencies.insert(dependency);
+}
+
+void cmLocalNinjaGenerator::WriteTargetAll(std::ostream& os)
+{
+  cmNinjaDeps emptyDeps;
+  cmNinjaVars emptyVars;
+
+  cmNinjaDeps outputs;
+  outputs.insert("all");
+
+  cmGlobalNinjaGenerator::WritePhonyBuild(os,
+                                          "The main all target.",
+                                          outputs,
+                                          emptyDeps,
+                                          emptyDeps,
+                                          this->AllDependencies,
+                                          emptyVars);
 }
