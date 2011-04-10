@@ -163,8 +163,7 @@ cmNinjaExecutableTargetGenerator
   vars.TargetVersionMajor = targetVersionMajor.c_str();
   vars.TargetVersionMinor = targetVersionMinor.c_str();
 
-  // FIXME(Nicolas Despres): List libraries to link with.
-  vars.LinkLibraries = "";
+  vars.LinkLibraries = "$LDLIBS";
   // This is mandatory to use a local variables because the string must be
   // in memory until ExpandRuleVariables() is called.
   std::string flags = this->LanguageFlagsVarName(language);
@@ -265,7 +264,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
     << "\n\n";
 
   cmNinjaDeps emptyDeps;
-  cmNinjaVars emptyVars;
+  cmNinjaVars vars;
 
   // Compute the comment.
   std::ostringstream comment;
@@ -280,6 +279,15 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
   const char* linkLanguage =
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
 
+  // Compute specific libraries to link with.
+  {
+  std::ostringstream linkLibraries;
+  this->GetLocalGenerator()->OutputLinkLibraries(linkLibraries,
+                                                 *this->GetTarget(),
+                                                 false);
+  vars["LDLIBS"] = linkLibraries.str();
+  }
+
   // Write the build statement for this target.
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                      comment.str(),
@@ -288,5 +296,5 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
                                      this->Objects,
                                      emptyDeps,
                                      emptyDeps,
-                                     emptyVars);
+                                     vars);
 }
