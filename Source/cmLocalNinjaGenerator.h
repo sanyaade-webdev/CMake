@@ -58,9 +58,6 @@ public:
   /// Overloaded methods. @see cmLocalGenerator::GenerateTargetManifest()
   virtual void GenerateTargetManifest();
 
-  /// Overloaded methods. @see cmLocalGenerator::AppendFlags()
-  virtual void AppendFlags(std::string& flags, const char* newFlags);
-
   /// Overloaded methods. @see cmLocalGenerator::ClearDependencies()
   virtual void ClearDependencies(cmMakefile* mf, bool verbose);
 

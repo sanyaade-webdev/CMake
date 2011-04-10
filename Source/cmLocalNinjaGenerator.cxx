@@ -123,23 +123,6 @@ void cmLocalNinjaGenerator::GenerateTargetManifest()
 
 // Implemented only in UnixMakefile local generator.
 // Used in:
-//   Source/cmMakefileExecutableTargetGenerator.cxx
-//   Source/cmMakefileLibraryTargetGenerator.cxx
-//   Source/cmMakefileTargetGenerator.cxx
-void cmLocalNinjaGenerator::AppendFlags(std::string& flags,
-                                        const char* newFlags)
-{
-  std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cout << "DEBUG NINJA: ARG: flags: '" << flags << "'" << std::endl;
-  std::cout << "DEBUG NINJA: ARG: newFlags: '" << newFlags << "'" << std::endl;
-
-  cmLocalGenerator::AppendFlags(flags, newFlags);
-
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Implemented only in UnixMakefile local generator.
-// Used in:
 //   Source/cmake.cxx
 void cmLocalNinjaGenerator::ClearDependencies(cmMakefile* mf,
                                               bool verbose)

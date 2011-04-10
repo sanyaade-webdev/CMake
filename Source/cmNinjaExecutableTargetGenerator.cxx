@@ -288,6 +288,9 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
   vars["LDLIBS"] = linkLibraries.str();
   }
 
+  // Compute specific link flags.
+  vars["LDFLAGS"] = this->ComputeLinkFlags(linkLanguage);
+
   // Write the build statement for this target.
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                      comment.str(),
@@ -297,4 +300,56 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
                                      emptyDeps,
                                      emptyDeps,
                                      vars);
+}
+
+// TODO(Nicolas Despres): Most of the code is picked up from
+// void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink).
+// Refactor it.
+std::string
+cmNinjaExecutableTargetGenerator
+::ComputeLinkFlags(const std::string& linkLanguage)
+{
+  // The returned variables.
+  std::string linkFlags;
+  // Convenience variables.
+  cmLocalNinjaGenerator* lg = this->GetLocalGenerator();
+  cmTarget* target = this->GetTarget();
+  cmMakefile* makefile = this->GetMakefile();
+
+  // Add flags to create an executable.
+  lg->AddConfigVariableFlags(linkFlags,
+                             "CMAKE_EXE_LINKER_FLAGS",
+                             this->GetConfigName());
+
+  if(target->GetPropertyAsBool("WIN32_EXECUTABLE"))
+    lg->AppendFlags(linkFlags,
+                    makefile->GetDefinition("CMAKE_CREATE_WIN32_EXE"));
+  else
+    lg->AppendFlags(linkFlags,
+                    makefile->GetDefinition("CMAKE_CREATE_CONSOLE_EXE"));
+
+  // Add symbol export flags if necessary.
+  if(target->IsExecutableWithExports())
+    {
+    std::string export_flag_var = "CMAKE_EXE_EXPORTS_";
+    export_flag_var += linkLanguage;
+    export_flag_var += "_FLAG";
+    lg->AppendFlags(linkFlags,
+                    makefile->GetDefinition(export_flag_var.c_str()));
+    }
+
+  // Target specific link flags.
+  lg->AppendFlags(linkFlags, target->GetProperty("LINK_FLAGS"));
+
+  // Configuration specific link flags.
+  std::string linkFlagsConfig = "LINK_FLAGS_";
+  linkFlagsConfig += cmSystemTools::UpperCase(this->GetConfigName());
+  lg->AppendFlags(linkFlags, target->GetProperty(linkFlagsConfig.c_str()));
+
+  // TODO(Nicolas Despres): Let's see later for the definition files.
+  // It looks like something specific to Windows and Ninja is not available
+  // on Windows yet.
+  // this->AddModuleDefinitionFlag(linkFlags);
+
+  return linkFlags;
 }

@@ -34,6 +34,7 @@ private:
   void WriteObjectBuildStatements();
   void WriteObjectBuildStatement(cmSourceFile* source);
   void WriteLinkStatement();
+  std::string ComputeLinkFlags(const std::string& linkLanguage);
 
 private:
   // Target name info.
