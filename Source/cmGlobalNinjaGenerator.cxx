@@ -231,20 +231,16 @@ void cmGlobalNinjaGenerator::WriteVariable(std::ostream& os,
     return;
     }
 
-  // Make sure we have a value.
-  if(value.empty())
+  // Do not add a variable if the value is empty.
+  std::string val = cmSystemTools::Trimmed(value);
+  if(val.empty())
     {
-    cmSystemTools::Error("No name given for WriteVariable! called "
-                         "with name: ",
-                         name.c_str(),
-                         " and comment: ",
-                         comment.c_str());
     return;
     }
 
   cmGlobalNinjaGenerator::WriteComment(os, comment);
   cmGlobalNinjaGenerator::Indent(os, indent);
-  os << name << " = " << value << "\n";
+  os << name << " = " << val << "\n";
 }
 
 void cmGlobalNinjaGenerator::WriteInclude(std::ostream& os,
