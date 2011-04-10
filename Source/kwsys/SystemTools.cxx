@@ -1195,6 +1195,31 @@ kwsys_stl::string SystemTools::UpperCase(const kwsys_stl::string& s)
   return n;
 }
 
+// Returns a string that has whitespace removed from the start and the end.
+kwsys_stl::string SystemTools::Trimmed(const kwsys_stl::string& s)
+{
+  kwsys_stl::string::const_iterator i = s.begin();
+  while(i != s.end() && *i == ' ')
+    ++i;
+  kwsys_stl::string::const_iterator start = i;
+
+  kwsys_stl::string::const_iterator stop = i;
+  while(i != s.end())
+    {
+    if(*i != ' ')
+      stop = i;
+    ++i;
+    }
+
+  if(start != stop)
+    ++stop;
+
+  kwsys_stl::string n;
+  n.resize(stop - start);
+  copy(start, stop, n.begin());
+  return n;
+}
+
 // Count char in string
 size_t SystemTools::CountChar(const char* str, char c)
 {
