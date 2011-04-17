@@ -31,11 +31,21 @@ cmLocalNinjaGenerator::cmLocalNinjaGenerator()
 
 cmLocalNinjaGenerator::~cmLocalNinjaGenerator()
 {
+  std::cout << "DEBUG NINJA: LOCAL GENERATOR DESTRUCTOR: "
+            << this << std::endl;
 }
 
 void cmLocalNinjaGenerator::Generate()
 {
-  std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << "DEBUG NINJA: BEGIN: "
+            << __PRETTY_FUNCTION__
+            << " (" << this << ")" << std::endl;
+  std::cout << "DEBUG NINJA: CURRENT DIRECTORY: "
+            << this->Makefile->GetCurrentDirectory() << std::endl;
+  std::cout << "DEBUG NINJA: CURRENT OUTPUT DIRECTORY: "
+            << this->Makefile->GetCurrentOutputDirectory() << std::endl;
+  std::cout << "DEBUG NINJA: CURRENT LIST FILE: "
+            << this->Makefile->GetCurrentListFile() << std::endl;
 
   this->SetConfigName();
   this->WriteProjectHeader(this->GetBuildFileStream());
@@ -54,7 +64,9 @@ void cmLocalNinjaGenerator::Generate()
 
   this->WriteBuiltinTargets(this->GetBuildFileStream());
 
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << "DEBUG NINJA: END: "
+            << __PRETTY_FUNCTION__
+            << " (" << this << ")" << std::endl;
 }
 
 // Implemented in:

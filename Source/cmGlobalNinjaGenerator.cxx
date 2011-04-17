@@ -302,7 +302,9 @@ void cmGlobalNinjaGenerator::Configure()
 //   Source/cmake.cxx
 void cmGlobalNinjaGenerator::Generate()
 {
-  std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << "DEBUG NINJA: BEGIN: "
+            << __PRETTY_FUNCTION__
+            << " (" << this << ")" << std::endl;
 
   this->OpenBuildFileStream();
   this->OpenRulesFileStream();
@@ -312,7 +314,9 @@ void cmGlobalNinjaGenerator::Generate()
   this->CloseRulesFileStream();
   this->CloseBuildFileStream();
 
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << "DEBUG NINJA: END: "
+            << __PRETTY_FUNCTION__
+            << " (" << this << ")" << std::endl;
 }
 
 // Implemented in all cmGlobaleGenerator sub-classes.
