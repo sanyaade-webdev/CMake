@@ -169,13 +169,6 @@ public:
                                            bool ignoreErrors,
                                            bool fast);
 
-  /// Overloaded methods.
-  /// @see cmGlobalGenerator::AppendDirectoryForConfig()
-  virtual void AppendDirectoryForConfig(const char* prefix,
-                                        const char* config,
-                                        const char* suffix,
-                                        std::string& dir);
-
   // Setup target names
   virtual const char* GetAllTargetName()           const { return "all"; }
   virtual const char* GetInstallTargetName()       const { return "install"; }

@@ -443,27 +443,6 @@ std::string cmGlobalNinjaGenerator
   return makeCommand;
 }
 
-// Not implemented in UnixMakefile generator.
-void cmGlobalNinjaGenerator
-::AppendDirectoryForConfig(const char* prefix,
-                           const char* config,
-                           const char* suffix,
-                           std::string& dir)
-{
-  std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cout << "DEBUG NINJA: ARG: prefix: '" << prefix << "'" << std::endl;
-  std::cout << "DEBUG NINJA: ARG: config: '" << config << "'" << std::endl;
-  std::cout << "DEBUG NINJA: ARG: suffix: '" << suffix << "'" << std::endl;
-  std::cout << "DEBUG NINJA: ARG: dir: '" << dir << "'" << std::endl;
-
-  cmGlobalGenerator::AppendDirectoryForConfig(prefix,
-                                              config,
-                                              suffix,
-                                              dir);
-
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
 //----------------------------------------------------------------------------
 // Non-virtual public methods.
 
