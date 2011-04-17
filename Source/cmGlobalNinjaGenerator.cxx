@@ -521,15 +521,6 @@ const char* cmGlobalNinjaGenerator::GetPredefinedTargetsFolder()
   return ret;
 }
 
-// Not implemented in UnixMakefile generator.
-bool cmGlobalNinjaGenerator::UseFolderProperty()
-{
-  std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  bool ret = cmGlobalGenerator::UseFolderProperty();
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
-}
-
 //----------------------------------------------------------------------------
 // Private methods
 

@@ -221,9 +221,6 @@ protected:
   /// Overloaded methods. @see cmGlobalGenerator::GetPredefinedTargetsFolder()
   virtual const char* GetPredefinedTargetsFolder();
 
-  /// Overloaded methods. @see cmGlobalGenerator::UseFolderProperty()
-  virtual bool UseFolderProperty();
-
 private:
   void OpenBuildFileStream();
   void CloseBuildFileStream();
