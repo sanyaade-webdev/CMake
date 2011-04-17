@@ -196,6 +196,18 @@ public:
   cmGeneratedFileStream* GetRulesFileStream() const
   { return this->RulesFileStream; }
 
+  /**
+   * Add a rule to the generated build system.
+   * Call WriteRule() behind the scene but perform some check before like:
+   * - Do not add twice the same rule.
+   */
+  void AddRule(const std::string& name,
+               const std::string& command,
+               const std::string& comment,
+               const std::string& description,
+               const std::string& depfile,
+               const cmNinjaVars& variables);
+
 protected:
 
   /// Overloaded methods. @see cmGlobalGenerator::GetTargetSets()
@@ -236,6 +248,13 @@ private:
   /// The file containing the rule statements. (The action attached to each
   /// edge of the compilation DAG).
   cmGeneratedFileStream* RulesFileStream;
+
+  /// The type used to store the set of rules added to the generated build
+  /// system.
+  typedef std::set<std::string> RulesSetType;
+
+  /// The set of rules added to the generated build system.
+  RulesSetType Rules;
 };
 
 #endif // ! cmGlobalNinjaGenerator_h

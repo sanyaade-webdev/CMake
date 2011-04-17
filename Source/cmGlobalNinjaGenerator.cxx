@@ -256,6 +256,7 @@ cmGlobalNinjaGenerator::cmGlobalNinjaGenerator()
   : cmGlobalGenerator()
   , BuildFileStream(0)
   , RulesFileStream(0)
+  , Rules()
 {
   // // Ninja is not ported to non-Unix OS yet.
   // this->ForceUnixPaths = true;
@@ -462,6 +463,32 @@ void cmGlobalNinjaGenerator
 
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
 }
+
+//----------------------------------------------------------------------------
+// Non-virtual public methods.
+
+void cmGlobalNinjaGenerator::AddRule(const std::string& name,
+                                     const std::string& command,
+                                     const std::string& comment,
+                                     const std::string& description,
+                                     const std::string& depfile,
+                                     const cmNinjaVars& variables)
+{
+  // Do not add twice the same rule.
+  RulesSetType::const_iterator rule = this->Rules.find(name);
+  if (rule != this->Rules.end())
+    return;
+
+  this->Rules.insert(name);
+  cmGlobalNinjaGenerator::WriteRule(*this->RulesFileStream,
+                                    name,
+                                    command,
+                                    comment,
+                                    description,
+                                    depfile,
+                                    variables);
+}
+
 
 //----------------------------------------------------------------------------
 // Virtual protected methods.
