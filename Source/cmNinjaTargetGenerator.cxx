@@ -256,11 +256,11 @@ cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
     {
     if(li->IsPath)
       {
-      linkDeps.insert(this->LocalGenerator->ConvertToLinkReference(li->Value));
+      linkDeps.push_back(this->LocalGenerator->ConvertToLinkReference(li->Value));
       }
     else
       {
-      linkDeps.insert(li->Value);
+      linkDeps.push_back(li->Value);
       }
     }
 

@@ -436,7 +436,7 @@ void cmLocalNinjaGenerator::WriteBuiltinTargets(std::ostream& os)
 
 void cmLocalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
 {
-  this->AllDependencies.insert(dependency);
+  this->AllDependencies.push_back(dependency);
 }
 
 void cmLocalNinjaGenerator::WriteTargetAll(std::ostream& os)
@@ -445,7 +445,7 @@ void cmLocalNinjaGenerator::WriteTargetAll(std::ostream& os)
   cmNinjaVars emptyVars;
 
   cmNinjaDeps outputs;
-  outputs.insert("all");
+  outputs.push_back("all");
 
   cmGlobalNinjaGenerator::WritePhonyBuild(os,
                                           "The main all target.",

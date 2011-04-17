@@ -243,16 +243,16 @@ cmNinjaLibraryTargetGenerator
   cmNinjaDeps outputs;
   std::string objectFileName =
     this->GetLocalGenerator()->GetObjectFileName(*this->GetTarget(), *source);
-  outputs.insert(objectFileName);
+  outputs.push_back(objectFileName);
   // Add this object to the list of object files.
-  this->Objects.insert(objectFileName);
+  this->Objects.push_back(objectFileName);
 
   cmNinjaDeps explicitDeps;
   std::string sourceFileName =
     this->GetLocalGenerator()->Convert(source->GetFullPath().c_str(),
                                        cmLocalGenerator::HOME_OUTPUT,
                                        cmLocalGenerator::MAKEFILE);
-  explicitDeps.insert(sourceFileName);
+  explicitDeps.push_back(sourceFileName);
 
   const char* linkLanguage =
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
@@ -293,7 +293,7 @@ void cmNinjaLibraryTargetGenerator::WriteLinkStatement()
 
   // Compute outputs.
   cmNinjaDeps outputs;
-  outputs.insert(this->TargetNameOut);
+  outputs.push_back(this->TargetNameOut);
   // Add this executable to the all target.
   this->GetLocalGenerator()->AddDependencyToAll(this->TargetNameOut);
 
@@ -307,7 +307,7 @@ void cmNinjaLibraryTargetGenerator::WriteLinkStatement()
   for(cmNinjaDeps::const_iterator i = linkDeps.begin();
       i != linkDeps.end();
       ++i)
-    explicitDeps.insert(*i);
+    explicitDeps.push_back(*i);
   std::ostringstream linkLibraries;
   this->GetLocalGenerator()->OutputLinkLibraries(linkLibraries,
                                                  *this->GetTarget(),

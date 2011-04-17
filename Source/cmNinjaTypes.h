@@ -12,7 +12,7 @@
 #ifndef cmNinjaTypes_h
 #  define cmNinjaTypes_h
 
-typedef std::set<std::string> cmNinjaDeps;
+typedef std::vector<std::string> cmNinjaDeps;
 typedef std::map<std::string, std::string> cmNinjaVars;
 
 #endif // ! cmGlobalNinjaGenerator_h
