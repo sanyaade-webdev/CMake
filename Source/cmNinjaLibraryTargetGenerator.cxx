@@ -9,34 +9,36 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
-#include "cmNinjaExecutableTargetGenerator.h"
+#include "cmNinjaLibraryTargetGenerator.h"
 #include "cmLocalNinjaGenerator.h"
 #include "cmGlobalNinjaGenerator.h"
 #include "cmSourceFile.h"
 #include "cmGeneratedFileStream.h"
 #include "cmMakefile.h"
 
-cmNinjaExecutableTargetGenerator::
-cmNinjaExecutableTargetGenerator(cmTarget* target)
+cmNinjaLibraryTargetGenerator::
+cmNinjaLibraryTargetGenerator(cmTarget* target)
   : cmNinjaTargetGenerator(target)
   , TargetNameOut()
+  , TargetNameSO()
   , TargetNameReal()
   , TargetNameImport()
   , TargetNamePDB()
   , Objects()
 {
-  this->GetTarget()->GetExecutableNames(this->TargetNameOut,
-                                        this->TargetNameReal,
-                                        this->TargetNameImport,
-                                        this->TargetNamePDB,
-                                        GetLocalGenerator()->GetConfigName());
+  this->GetTarget()->GetLibraryNames(this->TargetNameOut,
+                                     this->TargetNameSO,
+                                     this->TargetNameReal,
+                                     this->TargetNameImport,
+                                     this->TargetNamePDB,
+                                     GetLocalGenerator()->GetConfigName());
 }
 
-cmNinjaExecutableTargetGenerator::~cmNinjaExecutableTargetGenerator()
+cmNinjaLibraryTargetGenerator::~cmNinjaLibraryTargetGenerator()
 {
 }
 
-void cmNinjaExecutableTargetGenerator::Generate()
+void cmNinjaLibraryTargetGenerator::Generate()
 {
   // Write the rules for each language.
   this->WriteLanguagesRules();
@@ -44,14 +46,14 @@ void cmNinjaExecutableTargetGenerator::Generate()
   // Write the build statements
   this->WriteObjectBuildStatements();
 
-  // Write the link statement.
+  // // Write the link statement.
   this->WriteLinkStatement();
 
   this->GetBuildFileStream() << "\n";
   this->GetRulesFileStream() << "\n";
 }
 
-void cmNinjaExecutableTargetGenerator::WriteLanguagesRules()
+void cmNinjaLibraryTargetGenerator::WriteLanguagesRules()
 {
   cmGlobalNinjaGenerator::WriteDivider(this->GetRulesFileStream());
   this->GetRulesFileStream()
@@ -70,7 +72,7 @@ void cmNinjaExecutableTargetGenerator::WriteLanguagesRules()
 }
 
 void
-cmNinjaExecutableTargetGenerator
+cmNinjaLibraryTargetGenerator
 ::WriteLanguageRules(const std::string& language)
 {
   this->GetRulesFileStream()
@@ -80,8 +82,10 @@ cmNinjaExecutableTargetGenerator
   this->WriteLinkRule(language);
 }
 
+// TODO(Nicolas Despres): Refactor with
+// void cmNinjaExecutableTargetGenerator::WriteCompileRule(const std::string& language);
 void
-cmNinjaExecutableTargetGenerator
+cmNinjaLibraryTargetGenerator
 ::WriteCompileRule(const std::string& language)
 {
   cmLocalGenerator::RuleVariables vars;
@@ -129,7 +133,7 @@ cmNinjaExecutableTargetGenerator
 }
 
 void
-cmNinjaExecutableTargetGenerator
+cmNinjaLibraryTargetGenerator
 ::WriteLinkRule(const std::string& language)
 {
   cmLocalGenerator::RuleVariables vars;
@@ -146,6 +150,7 @@ cmNinjaExecutableTargetGenerator
                                               cmLocalGenerator::SHELL);
   vars.ObjectDir = objdir.c_str();
   vars.Target = "$out";
+  vars.TargetSOName = "$SONAME";
 
   // Setup the target version.
   std::string targetVersionMajor;
@@ -165,27 +170,29 @@ cmNinjaExecutableTargetGenerator
   vars.TargetVersionMinor = targetVersionMinor.c_str();
 
   vars.LinkLibraries = "$LDLIBS";
+
+  // Add language feature flags.
   // This is mandatory to use a local variables because the string must be
   // in memory until ExpandRuleVariables() is called.
-  std::string flags = this->LanguageFlagsVarName(language, true);
-  vars.Flags = flags.c_str();
+  std::string langFlags = this->LanguageFlagsVarName(language, true);
+  vars.LanguageCompileFlags = langFlags.c_str();
   vars.LinkFlags = "$LDFLAGS";
 
-  // Rule for linking executable.
+  // Rule for linking library.
   std::string linkCmdVar = "CMAKE_";
   linkCmdVar += language;
-  linkCmdVar += "_LINK_EXECUTABLE";
+  linkCmdVar += "_CREATE_SHARED_LIBRARY";
   std::string linkCmd =
     this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
   std::cout << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
 
   this->GetLocalGenerator()->ExpandRuleVariables(linkCmd, vars);
 
-  // Write the rule for linking an executable.
+  // Write the rule for linking an library.
   std::ostringstream comment;
-  comment << "Rule for linking " << language << " executable.";
+  comment << "Rule for linking " << language << " shared library.";
   std::ostringstream description;
-  description << "Linking " << language << " executable $out";
+  description << "Linking " << language << " shared library $out";
   std::string depfile = "";
   cmNinjaVars emptyVars;
   this->GetGlobalGenerator()->AddRule(this->LanguageLinkerRule(language),
@@ -197,7 +204,7 @@ cmNinjaExecutableTargetGenerator
 }
 
 void
-cmNinjaExecutableTargetGenerator
+cmNinjaLibraryTargetGenerator
 ::WriteObjectBuildStatements()
 {
   // Write comments.
@@ -220,7 +227,7 @@ cmNinjaExecutableTargetGenerator
 }
 
 void
-cmNinjaExecutableTargetGenerator
+cmNinjaLibraryTargetGenerator
 ::WriteObjectBuildStatement(cmSourceFile* source)
 {
   cmNinjaDeps emptyDeps;
@@ -266,7 +273,7 @@ cmNinjaExecutableTargetGenerator
                                      vars);
 }
 
-void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
+void cmNinjaLibraryTargetGenerator::WriteLinkStatement()
 {
   // Write comments.
   cmGlobalNinjaGenerator::WriteDivider(this->GetBuildFileStream());
@@ -282,7 +289,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
 
   // Compute the comment.
   std::ostringstream comment;
-  comment << "Link the executable " << this->TargetNameOut;
+  comment << "Link the shared library " << this->TargetNameOut;
 
   // Compute outputs.
   cmNinjaDeps outputs;
@@ -312,6 +319,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
   vars[this->LanguageFlagsVarName(linkLanguage)] =
     this->ComputeFlagsForLink(linkLanguage);
   vars["LDFLAGS"] = this->ComputeLinkFlags(linkLanguage);
+  vars["SONAME"] = this->TargetNameSO;
 
   // Write the build statement for this target.
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
@@ -328,7 +336,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
 // void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink).
 // Refactor it.
 std::string
-cmNinjaExecutableTargetGenerator
+cmNinjaLibraryTargetGenerator
 ::ComputeLinkFlags(const std::string& linkLanguage)
 {
   // The returned variables.

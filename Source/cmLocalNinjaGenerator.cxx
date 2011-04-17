@@ -15,6 +15,7 @@
 #include "cmNinjaTargetGenerator.h"
 #include "cmGeneratedFileStream.h"
 #include "cmSourceFile.h"
+#include "cmComputeLinkInformation.h"
 
 cmLocalNinjaGenerator::cmLocalNinjaGenerator()
   : cmLocalGenerator()
@@ -237,25 +238,124 @@ cmLocalNinjaGenerator
 //----------------------------------------------------------------------------
 // Virtual protected methods.
 
-// Not implemented in none of cmLocalGenerator sub-classes.
-// Used in:
-//   Source/cmLocalGenerator.cxx
-//   Source/cmMakefileExecutableTargetGenerator.cxx
-//   Source/cmMakefileLibraryTargetGenerator.cxx
+// TODO(Nicolas Despres): Refactor with
+// void cmLocalNinjaGenerator::OutputLinkLibraries(std::ostream& fout,
+//                                                 cmTarget& tgt,
+//                                                 bool relink);
+//
+// Actually do not want the list of .so files to show up here since I want
+// to use them as explicit dependencies of the link and thus to be bind to
+// the $in variable. So I keep here only the the flags.
+//
+// The list of dependent targets is compute by
+// cmNinjaTargetGenerator::ComputeLinkDeps().
 void cmLocalNinjaGenerator::OutputLinkLibraries(std::ostream& fout,
                                                 cmTarget& tgt,
                                                 bool relink)
 {
-  std::cout << "DEBUG NINJA: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cout << "DEBUG NINJA: ARG: tgt: "
-            << " name: '" << tgt.GetName() << "'"
-            << " type: '" << cmTarget::TargetTypeNames(tgt.GetType()) << "'"
-            << std::endl;
-  std::cout << "DEBUG NINJA: ARG: relink: '" << relink << "'" << std::endl;
+  const char* config = this->Makefile->GetDefinition("CMAKE_BUILD_TYPE");
+  cmComputeLinkInformation* pcli = tgt.GetLinkInformation(config);
+  if(!pcli)
+    {
+    return;
+    }
+  cmComputeLinkInformation& cli = *pcli;
 
-  cmLocalGenerator::OutputLinkLibraries(fout, tgt, relink);
+  // Collect library linking flags command line options.
+  std::string linkLibs;
 
-  std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
+  const char* linkLanguage = cli.GetLinkLanguage();
+
+  std::string libPathFlag =
+    this->Makefile->GetRequiredDefinition("CMAKE_LIBRARY_PATH_FLAG");
+  std::string libPathTerminator =
+    this->Makefile->GetSafeDefinition("CMAKE_LIBRARY_PATH_TERMINATOR");
+
+  // Flags to link an executable to shared libraries.
+  std::string linkFlagsVar = "CMAKE_SHARED_LIBRARY_LINK_";
+  linkFlagsVar += linkLanguage;
+  linkFlagsVar += "_FLAGS";
+  if( tgt.GetType() == cmTarget::EXECUTABLE )
+    {
+    linkLibs = this->Makefile->GetSafeDefinition(linkFlagsVar.c_str());
+    linkLibs += " ";
+    }
+
+  // Append the framework search path flags.
+  std::vector<std::string> const& fwDirs = cli.GetFrameworkPaths();
+  for(std::vector<std::string>::const_iterator fdi = fwDirs.begin();
+      fdi != fwDirs.end(); ++fdi)
+    {
+    linkLibs += "-F";
+    linkLibs += this->Convert(fdi->c_str(), NONE, SHELL, false);
+    linkLibs += " ";
+    }
+
+  // Append the library search path flags.
+  std::vector<std::string> const& libDirs = cli.GetDirectories();
+  for(std::vector<std::string>::const_iterator libDir = libDirs.begin();
+      libDir != libDirs.end(); ++libDir)
+    {
+    std::string libpath = this->ConvertToOutputForExisting(libDir->c_str());
+    linkLibs += libPathFlag;
+    linkLibs += libpath;
+    linkLibs += libPathTerminator;
+    linkLibs += " ";
+    }
+
+  // Write the library flags to the build rule.
+  fout << linkLibs;
+
+  // Get the RPATH entries.
+  std::vector<std::string> runtimeDirs;
+  cli.GetRPath(runtimeDirs, relink);
+
+  // Check what kind of rpath flags to use.
+  if(cli.GetRuntimeSep().empty())
+    {
+    // Each rpath entry gets its own option ("-R a -R b -R c")
+    std::string rpath;
+    for(std::vector<std::string>::iterator ri = runtimeDirs.begin();
+        ri != runtimeDirs.end(); ++ri)
+      {
+      rpath += cli.GetRuntimeFlag();
+      rpath += this->Convert(ri->c_str(), NONE, SHELL, false);
+      rpath += " ";
+      }
+    fout << rpath;
+    }
+  else
+    {
+    // All rpath entries are combined ("-Wl,-rpath,a:b:c").
+    std::string rpath = cli.GetRPathString(relink);
+
+    // Store the rpath option in the stream.
+    if(!rpath.empty())
+      {
+      fout << cli.GetRuntimeFlag();
+      fout << this->EscapeForShell(rpath.c_str(), true);
+      fout << " ";
+      }
+    }
+
+  // Add the linker runtime search path if any.
+  std::string rpath_link = cli.GetRPathLinkString();
+  if(!cli.GetRPathLinkFlag().empty() && !rpath_link.empty())
+    {
+    fout << cli.GetRPathLinkFlag();
+    fout << this->EscapeForShell(rpath_link.c_str(), true);
+    fout << " ";
+    }
+
+  // Add standard libraries for this language.
+  std::string standardLibsVar = "CMAKE_";
+  standardLibsVar += cli.GetLinkLanguage();
+  standardLibsVar += "_STANDARD_LIBRARIES";
+  if(const char* stdLibs =
+     this->Makefile->GetDefinition(standardLibsVar.c_str()))
+    {
+    fout << stdLibs << " ";
+    }
 }
 
 // Implemented only in cmLocalVisualStudio6Generator.

@@ -13,6 +13,7 @@
 #  define cmNinjaTargetGenerator_h
 
 #  include "cmStandardIncludes.h"
+#  include "cmNinjaTypes.h"
 
 class cmTarget;
 class cmLocalNinjaGenerator;
@@ -56,7 +57,34 @@ protected:
 
   std::string LanguageLinkerRule(const std::string& lang) const;
 
-  std::string LanguageFlagsVarName(const std::string& language) const;
+  std::string LanguageFlagsVarName(const std::string& language,
+                                   bool ref = false) const;
+  std::string LanguageDefinesVarName(const std::string& language,
+                                     bool ref = false) const;
+
+  const char* GetFeature(const char* feature);
+  bool GetFeatureAsBool(const char* feature);
+  void AddFeatureFlags(std::string& flags, const char* lang);
+
+  /**
+   * Compute the flags for compilation of object files for a given @a language.
+   * @note Generally it is the value of the variable whose name is computed
+   *       by LanguageFlagsVarName().
+   */
+  std::string ComputeFlagsForObject(const std::string& language);
+
+  /**
+   * Compute the flags for the linking of a target for a given @a language.
+   * @note Generally it is the value of the variable whose name is computed
+   *       by LanguageFlagsVarName().
+   */
+  std::string ComputeFlagsForLink(const std::string& language);
+
+  std::string ComputeDefines(const std::string& language);
+
+  /// @return the list of link dependency for the given target @a target.
+  cmNinjaDeps ComputeLinkDeps() const;
+
 
 private:
   cmTarget* Target;
