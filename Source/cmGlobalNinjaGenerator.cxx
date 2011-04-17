@@ -257,6 +257,7 @@ cmGlobalNinjaGenerator::cmGlobalNinjaGenerator()
   , BuildFileStream(0)
   , RulesFileStream(0)
   , Rules()
+  , AllDependencies()
 {
   // // Ninja is not ported to non-Unix OS yet.
   // this->ForceUnixPaths = true;
@@ -310,6 +311,8 @@ void cmGlobalNinjaGenerator::Generate()
   this->OpenRulesFileStream();
 
   this->cmGlobalGenerator::Generate();
+
+  this->WriteBuiltinTargets(*this->BuildFileStream);
 
   this->CloseRulesFileStream();
   this->CloseBuildFileStream();
@@ -625,4 +628,35 @@ void cmGlobalNinjaGenerator::WriteDisclaimer(std::ostream& os)
     << " Generator, CMake Version "
     << cmVersion::GetMajorVersion() << "."
     << cmVersion::GetMinorVersion() << "\n\n";
+}
+
+void cmGlobalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
+{
+  this->AllDependencies.push_back(dependency);
+}
+
+void cmGlobalNinjaGenerator::WriteBuiltinTargets(std::ostream& os)
+{
+  // Write headers.
+  cmGlobalNinjaGenerator::WriteDivider(os);
+  os << "# Built-in targets\n\n";
+
+  this->WriteTargetAll(os);
+}
+
+void cmGlobalNinjaGenerator::WriteTargetAll(std::ostream& os)
+{
+  cmNinjaDeps emptyDeps;
+  cmNinjaVars emptyVars;
+
+  cmNinjaDeps outputs;
+  outputs.push_back("all");
+
+  cmGlobalNinjaGenerator::WritePhonyBuild(os,
+                                          "The main all target.",
+                                          outputs,
+                                          emptyDeps,
+                                          emptyDeps,
+                                          this->AllDependencies,
+                                          emptyVars);
 }

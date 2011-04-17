@@ -17,6 +17,7 @@
 
 class cmGlobalNinjaGenerator;
 class cmGeneratedFileStream;
+class cmake;
 
 /**
  * \class cmLocalNinjaGenerator
@@ -79,11 +80,20 @@ public:
 public:
   cmGlobalNinjaGenerator* GetGlobalNinjaGenerator() const;
 
+  /**
+   * Shortcut to get the cmake instance throw the global generator.
+   * @return an instance of the cmake object.
+   */
+  cmake* GetCMakeInstance() const;
+
   const char* GetConfigName() const
   { return this->ConfigName.c_str(); }
 
   std::string GetObjectFileName(const cmTarget& target,
                                 const cmSourceFile& source);
+
+  /// @return whether we are processing the top CMakeLists.txt file.
+  bool isRootMakefile() const;
 
 protected:
 
@@ -105,17 +115,15 @@ private:
   cmGeneratedFileStream& GetBuildFileStream() const;
   cmGeneratedFileStream& GetRulesFileStream() const;
 
+  void WriteBuildFileTop();
   void WriteProjectHeader(std::ostream& os);
   void WriteNinjaFilesInclusion(std::ostream& os);
-  void WriteBuiltinTargets(std::ostream& os);
-  void WriteTargetAll(std::ostream& os);
   void AddDependencyToAll(const std::string& dependency);
 
   void SetConfigName();
 
 private:
   std::string ConfigName;
-  cmNinjaDeps AllDependencies;
 };
 
 #endif // ! cmLocalNinjaGenerator_h

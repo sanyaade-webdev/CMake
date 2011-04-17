@@ -222,6 +222,10 @@ protected:
   virtual const char* GetPredefinedTargetsFolder();
 
 private:
+  // In order to access the AddDependencyToAll() functions and co.
+  friend class cmLocalNinjaGenerator;
+
+private:
   void OpenBuildFileStream();
   void CloseBuildFileStream();
 
@@ -230,6 +234,11 @@ private:
 
   /// Write the common disclaimer text at the top of each build file.
   void WriteDisclaimer(std::ostream& os);
+
+  void AddDependencyToAll(const std::string& dependency);
+
+  void WriteBuiltinTargets(std::ostream& os);
+  void WriteTargetAll(std::ostream& os);
 
 private:
   /// The file containing the build statement. (the relation ship of the
@@ -245,6 +254,9 @@ private:
 
   /// The set of rules added to the generated build system.
   RulesSetType Rules;
+
+  /// The set of dependencies to add to the "all" target.
+  cmNinjaDeps AllDependencies;
 };
 
 #endif // ! cmGlobalNinjaGenerator_h

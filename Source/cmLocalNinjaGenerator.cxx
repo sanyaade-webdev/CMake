@@ -16,11 +16,11 @@
 #include "cmGeneratedFileStream.h"
 #include "cmSourceFile.h"
 #include "cmComputeLinkInformation.h"
+#include "cmake.h"
 
 cmLocalNinjaGenerator::cmLocalNinjaGenerator()
   : cmLocalGenerator()
   , ConfigName("")
-  , AllDependencies()
 {
   // TODO(Nicolas Despres): Maybe I should set this one to true??
   this->IsMakefileGenerator = false;
@@ -48,8 +48,7 @@ void cmLocalNinjaGenerator::Generate()
             << this->Makefile->GetCurrentListFile() << std::endl;
 
   this->SetConfigName();
-  this->WriteProjectHeader(this->GetBuildFileStream());
-  this->WriteNinjaFilesInclusion(this->GetBuildFileStream());
+  this->WriteBuildFileTop();
 
   cmTargets& targets = this->GetMakefile()->GetTargets();
   for(cmTargets::iterator t = targets.begin(); t != targets.end(); ++t)
@@ -61,8 +60,6 @@ void cmLocalNinjaGenerator::Generate()
       delete tg;
       }
     }
-
-  this->WriteBuiltinTargets(this->GetBuildFileStream());
 
   std::cout << "DEBUG NINJA: END: "
             << __PRETTY_FUNCTION__
@@ -398,6 +395,27 @@ cmGeneratedFileStream& cmLocalNinjaGenerator::GetRulesFileStream() const
   return *this->GetGlobalNinjaGenerator()->GetRulesFileStream();
 }
 
+cmake* cmLocalNinjaGenerator::GetCMakeInstance() const
+{
+  return this->GetGlobalGenerator()->GetCMakeInstance();
+}
+
+bool cmLocalNinjaGenerator::isRootMakefile() const
+{
+  return (strcmp(this->Makefile->GetCurrentDirectory(),
+                 this->GetCMakeInstance()->GetHomeDirectory()) == 0);
+}
+
+void cmLocalNinjaGenerator::WriteBuildFileTop()
+{
+  // We do that only once for the top CMakeLists.txt file.
+  if (!this->isRootMakefile())
+    return;
+
+  this->WriteProjectHeader(this->GetBuildFileStream());
+  this->WriteNinjaFilesInclusion(this->GetBuildFileStream());
+}
+
 void cmLocalNinjaGenerator::WriteProjectHeader(std::ostream& os)
 {
   cmGlobalNinjaGenerator::WriteDivider(os);
@@ -436,34 +454,8 @@ void cmLocalNinjaGenerator::SetConfigName()
     }
 }
 
-void cmLocalNinjaGenerator::WriteBuiltinTargets(std::ostream& os)
-{
-  // Write headers.
-  cmGlobalNinjaGenerator::WriteDivider(os);
-  os << "# Built-in targets\n\n";
-
-  this->WriteTargetAll(os);
-}
-
 
 void cmLocalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
 {
-  this->AllDependencies.push_back(dependency);
-}
-
-void cmLocalNinjaGenerator::WriteTargetAll(std::ostream& os)
-{
-  cmNinjaDeps emptyDeps;
-  cmNinjaVars emptyVars;
-
-  cmNinjaDeps outputs;
-  outputs.push_back("all");
-
-  cmGlobalNinjaGenerator::WritePhonyBuild(os,
-                                          "The main all target.",
-                                          outputs,
-                                          emptyDeps,
-                                          emptyDeps,
-                                          this->AllDependencies,
-                                          emptyVars);
+  this->GetGlobalNinjaGenerator()->AddDependencyToAll(dependency);
 }
