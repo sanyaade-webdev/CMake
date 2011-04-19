@@ -324,14 +324,14 @@ cmNinjaTargetGenerator
     std::string comment = "Shortcut target for the output name.";
     cmNinjaDeps outputs;
     outputs.push_back(outputName);
-    cmNinjaDeps explicitDeps;
-    explicitDeps.push_back(outputPath);
+    cmNinjaDeps deps;
+    deps.push_back(outputPath);
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
                                             comment,
                                             outputs,
-                                            explicitDeps,
                                             emptyDeps,
                                             emptyDeps,
+                                            deps,
                                             emptyVars);
     }
 
@@ -341,14 +341,14 @@ cmNinjaTargetGenerator
     std::string comment = "Shortcut target for the target name.";
     cmNinjaDeps outputs;
     outputs.push_back(targetName);
-    cmNinjaDeps explicitDeps;
-    explicitDeps.push_back(outputName);
+    cmNinjaDeps deps;
+    deps.push_back(outputName);
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
                                             comment,
                                             outputs,
-                                            explicitDeps,
                                             emptyDeps,
                                             emptyDeps,
+                                            deps,
                                             emptyVars);
     }
 }
