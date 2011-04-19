@@ -285,7 +285,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
   std::string targetOutput = this->GetTargetFilePath(this->TargetNameOut);
   outputs.push_back(targetOutput);
   // Add this executable to the all target.
-  this->GetLocalGenerator()->AddDependencyToAll(this->TargetNameOut);
+  this->GetLocalGenerator()->AddDependencyToAll(this->GetTargetName());
 
   const char* linkLanguage =
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
