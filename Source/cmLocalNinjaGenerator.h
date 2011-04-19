@@ -95,6 +95,11 @@ public:
   /// @return whether we are processing the top CMakeLists.txt file.
   bool isRootMakefile() const;
 
+  /// @returns the relative path between the HomeOutputDirectory and this
+  /// local generators StartOutputDirectory.
+  std::string GetHomeRelativeOutputPath() const
+  { return this->HomeRelativeOutputPath; }
+
 protected:
 
   /// Overloaded methods. @see cmLocalGenerator::OutputLinkLibraries()
@@ -119,11 +124,13 @@ private:
   void WriteProjectHeader(std::ostream& os);
   void WriteNinjaFilesInclusion(std::ostream& os);
   void AddDependencyToAll(const std::string& dependency);
+  void WriteProcessedMakefile(std::ostream& os);
 
   void SetConfigName();
 
 private:
   std::string ConfigName;
+  std::string HomeRelativeOutputPath;
 };
 
 #endif // ! cmLocalNinjaGenerator_h

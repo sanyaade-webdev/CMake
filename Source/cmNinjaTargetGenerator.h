@@ -20,6 +20,7 @@ class cmLocalNinjaGenerator;
 class cmGlobalNinjaGenerator;
 class cmGeneratedFileStream;
 class cmMakefile;
+class cmSourceFile;
 
 class cmNinjaTargetGenerator
 {
@@ -85,6 +86,17 @@ protected:
   /// @return the list of link dependency for the given target @a target.
   cmNinjaDeps ComputeLinkDeps() const;
 
+  /// @return the source file path for the given @a source.
+  std::string GetSourceFilePath(cmSourceFile* source) const;
+
+  /// @return the object file path for the given @a source.
+  std::string GetObjectFilePath(cmSourceFile* source) const;
+
+  /// @return the file path where the target named @a name is generated.
+  std::string GetTargetFilePath(const std::string& name) const;
+
+  /// @return the output path for the target.
+  virtual std::string GetTargetOutputDir() const;
 
 private:
   cmTarget* Target;

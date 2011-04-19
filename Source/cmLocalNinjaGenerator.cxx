@@ -21,6 +21,7 @@
 cmLocalNinjaGenerator::cmLocalNinjaGenerator()
   : cmLocalGenerator()
   , ConfigName("")
+  , HomeRelativeOutputPath("")
 {
   // TODO(Nicolas Despres): Maybe I should set this one to true??
   this->IsMakefileGenerator = false;
@@ -47,7 +48,12 @@ void cmLocalNinjaGenerator::Generate()
   std::cout << "DEBUG NINJA: CURRENT LIST FILE: "
             << this->Makefile->GetCurrentListFile() << std::endl;
 
+
   this->SetConfigName();
+
+  this->WriteProcessedMakefile(this->GetBuildFileStream());
+  this->WriteProcessedMakefile(this->GetRulesFileStream());
+
   this->WriteBuildFileTop();
 
   cmTargets& targets = this->GetMakefile()->GetTargets();
@@ -75,9 +81,14 @@ void cmLocalNinjaGenerator::Configure()
 {
   std::cout << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
 
-  // NOTE: cmLocalUnixMakefileGenerator3::Configure() compute
-  // a path used to write rules in Makefiles later. We will see if
-  // we need such a thing later.
+  // Compute the path to use when referencing the current output
+  // directory from the top output directory.
+  this->HomeRelativeOutputPath =
+    this->Convert(this->Makefile->GetStartOutputDirectory(), HOME_OUTPUT);
+  if(this->HomeRelativeOutputPath == ".")
+    {
+    this->HomeRelativeOutputPath = "";
+    }
   this->cmLocalGenerator::Configure();
 
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
@@ -409,21 +420,25 @@ bool cmLocalNinjaGenerator::isRootMakefile() const
 void cmLocalNinjaGenerator::WriteBuildFileTop()
 {
   // We do that only once for the top CMakeLists.txt file.
-  if (!this->isRootMakefile())
+  if(!this->isRootMakefile())
     return;
 
+  // For the build file.
   this->WriteProjectHeader(this->GetBuildFileStream());
   this->WriteNinjaFilesInclusion(this->GetBuildFileStream());
+
+  // For the rule file.
+  this->WriteProjectHeader(this->GetRulesFileStream());
 }
 
 void cmLocalNinjaGenerator::WriteProjectHeader(std::ostream& os)
 {
   cmGlobalNinjaGenerator::WriteDivider(os);
   os
-    << "# Project: " << this->GetMakefile()->GetProjectName() << "\n"
-    << "# Configuration: " << this->ConfigName << "\n"
-    << "\n"
+    << "# Project: " << this->GetMakefile()->GetProjectName() << std::endl
+    << "# Configuration: " << this->ConfigName << std::endl
     ;
+  cmGlobalNinjaGenerator::WriteDivider(os);
 }
 
 void cmLocalNinjaGenerator::WriteNinjaFilesInclusion(std::ostream& os)
@@ -454,8 +469,20 @@ void cmLocalNinjaGenerator::SetConfigName()
     }
 }
 
-
 void cmLocalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
 {
   this->GetGlobalNinjaGenerator()->AddDependencyToAll(dependency);
+}
+
+void cmLocalNinjaGenerator::WriteProcessedMakefile(std::ostream& os)
+{
+  cmGlobalNinjaGenerator::WriteDivider(os);
+  os
+    << "# Write statements declared in CMakeLists.txt:" << std::endl
+    << "# " << this->Makefile->GetCurrentListFile() << std::endl
+    ;
+  if(this->isRootMakefile())
+    os << "# Which is the root file." << std::endl;
+  cmGlobalNinjaGenerator::WriteDivider(os);
+  os << std::endl;
 }

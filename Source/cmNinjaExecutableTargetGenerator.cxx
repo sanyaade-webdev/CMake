@@ -227,24 +227,20 @@ cmNinjaExecutableTargetGenerator
 
   std::string comment;
   const char* language = source->GetLanguage();
-  // If we cannot get the language this is probably a non-source file provided in the list
-  // (typically an header file).
+  // If we cannot get the language this is probably a non-source file provided
+  // in the list (typically an header file).
   if (!language)
     return;
   std::string rule = this->LanguageCompilerRule(language);
 
   cmNinjaDeps outputs;
-  std::string objectFileName =
-    this->GetLocalGenerator()->GetObjectFileName(*this->GetTarget(), *source);
+  std::string objectFileName = this->GetObjectFilePath(source);
   outputs.push_back(objectFileName);
   // Add this object to the list of object files.
   this->Objects.push_back(objectFileName);
 
   cmNinjaDeps explicitDeps;
-  std::string sourceFileName =
-    this->GetLocalGenerator()->Convert(source->GetFullPath().c_str(),
-                                       cmLocalGenerator::HOME_OUTPUT,
-                                       cmLocalGenerator::MAKEFILE);
+  std::string sourceFileName = this->GetSourceFilePath(source);
   explicitDeps.push_back(sourceFileName);
 
   const char* linkLanguage =
@@ -286,7 +282,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
 
   // Compute outputs.
   cmNinjaDeps outputs;
-  outputs.push_back(this->TargetNameOut);
+  outputs.push_back(this->GetTargetFilePath(this->TargetNameOut));
   // Add this executable to the all target.
   this->GetLocalGenerator()->AddDependencyToAll(this->TargetNameOut);
 

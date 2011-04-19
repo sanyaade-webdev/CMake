@@ -18,6 +18,7 @@
 #include "cmSystemTools.h"
 #include "cmMakefile.h"
 #include "cmComputeLinkInformation.h"
+#include "cmSourceFile.h"
 
 cmNinjaTargetGenerator *
 cmNinjaTargetGenerator::New(cmTarget* target)
@@ -254,15 +255,57 @@ cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
   ItemVector const& items = cli->GetItems();
   for(ItemVector::const_iterator li = items.begin(); li != items.end(); ++li)
     {
+    std::string filename;
     if(li->IsPath)
       {
-      linkDeps.push_back(this->LocalGenerator->ConvertToLinkReference(li->Value));
+      filename = this->LocalGenerator->ConvertToLinkReference(li->Value);
       }
     else
       {
-      linkDeps.push_back(li->Value);
+      filename = li->Value;
       }
+    std::string path = this->GetTargetOutputDir();
+    if(!path.empty())
+      path += "/";
+    path += filename;
+    linkDeps.push_back(path);
     }
 
   return linkDeps;
+}
+
+std::string
+cmNinjaTargetGenerator
+::GetSourceFilePath(cmSourceFile* source) const
+{
+  return this->LocalGenerator->Convert(source->GetFullPath().c_str(),
+                                       cmLocalGenerator::HOME_OUTPUT,
+                                       cmLocalGenerator::MAKEFILE);
+}
+
+std::string
+cmNinjaTargetGenerator
+::GetObjectFilePath(cmSourceFile* source) const
+{
+  std::string path = this->LocalGenerator->GetHomeRelativeOutputPath();
+  if(!path.empty())
+    path += "/";
+  path += this->LocalGenerator->GetObjectFileName(*this->Target, *source);
+  return path;
+}
+
+std::string cmNinjaTargetGenerator::GetTargetOutputDir() const
+{
+  return this->LocalGenerator->GetHomeRelativeOutputPath();
+}
+
+std::string
+cmNinjaTargetGenerator
+::GetTargetFilePath(const std::string& name) const
+{
+  std::string path = this->GetTargetOutputDir();
+  if(!path.empty())
+    path += "/";
+  path += name;
+  return path;
 }
