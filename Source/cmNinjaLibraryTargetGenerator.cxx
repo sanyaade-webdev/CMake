@@ -46,7 +46,7 @@ void cmNinjaLibraryTargetGenerator::Generate()
   // Write the build statements
   this->WriteObjectBuildStatements();
 
-  // // Write the link statement.
+  // Write the link statement.
   this->WriteLinkStatement();
 
   this->GetBuildFileStream() << "\n";
@@ -60,7 +60,7 @@ void cmNinjaLibraryTargetGenerator::WriteLanguagesRules()
     << "# Rules for each languages for "
     << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
     << " target "
-    << this->GetTarget()->GetName()
+    << this->GetTargetName()
     << "\n\n";
 
   std::set<cmStdString> languages;
@@ -143,7 +143,7 @@ cmNinjaLibraryTargetGenerator
   vars.Language = lang.c_str();
   vars.Objects = "$in";
   std::string objdir = cmake::GetCMakeFilesDirectoryPostSlash();
-  objdir += this->GetTarget()->GetName();
+  objdir += this->GetTargetName();
   objdir += ".dir";
   objdir = this->GetLocalGenerator()->Convert(objdir.c_str(),
                                               cmLocalGenerator::START_OUTPUT,
@@ -213,7 +213,7 @@ cmNinjaLibraryTargetGenerator
     << "# Object build statements for "
     << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
     << " target "
-    << this->GetTarget()->GetName()
+    << this->GetTargetName()
     << "\n\n";
 
   // For each source files of this target.
@@ -277,7 +277,7 @@ void cmNinjaLibraryTargetGenerator::WriteLinkStatement()
     << "# Link build statements for "
     << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
     << " target "
-    << this->GetTarget()->GetName()
+    << this->GetTargetName()
     << "\n\n";
 
   cmNinjaDeps emptyDeps;

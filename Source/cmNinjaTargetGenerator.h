@@ -43,6 +43,8 @@ protected:
   cmTarget* GetTarget() const
   { return this->Target; }
 
+  std::string GetTargetName() const;
+
   cmLocalNinjaGenerator* GetLocalGenerator() const
   { return this->LocalGenerator; }
 

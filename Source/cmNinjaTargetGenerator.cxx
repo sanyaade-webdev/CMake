@@ -334,7 +334,7 @@ cmNinjaTargetGenerator
                                             emptyVars);
     }
 
-  std::string targetName = this->Target->GetName();
+  std::string targetName = this->GetTargetName();
   if(targetName != outputName)
     {
     std::string comment = "Shortcut target for the target name.";
@@ -350,4 +350,9 @@ cmNinjaTargetGenerator
                                             emptyDeps,
                                             emptyVars);
     }
+}
+
+std::string cmNinjaTargetGenerator::GetTargetName() const
+{
+  return this->Target->GetName();
 }

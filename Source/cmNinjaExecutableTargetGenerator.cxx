@@ -58,7 +58,7 @@ void cmNinjaExecutableTargetGenerator::WriteLanguagesRules()
     << "# Rules for each languages for "
     << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
     << " target "
-    << this->GetTarget()->GetName()
+    << this->GetTargetName()
     << "\n\n";
 
   std::set<cmStdString> languages;
@@ -139,7 +139,7 @@ cmNinjaExecutableTargetGenerator
   vars.Language = lang.c_str();
   vars.Objects = "$in";
   std::string objdir = cmake::GetCMakeFilesDirectoryPostSlash();
-  objdir += this->GetTarget()->GetName();
+  objdir += this->GetTargetName();
   objdir += ".dir";
   objdir = this->GetLocalGenerator()->Convert(objdir.c_str(),
                                               cmLocalGenerator::START_OUTPUT,
@@ -206,7 +206,7 @@ cmNinjaExecutableTargetGenerator
     << "# Object build statements for "
     << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
     << " target "
-    << this->GetTarget()->GetName()
+    << this->GetTargetName()
     << "\n\n";
 
   // For each source files of this target.
@@ -270,7 +270,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
     << "# Link build statements for "
     << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
     << " target "
-    << this->GetTarget()->GetName()
+    << this->GetTargetName()
     << "\n\n";
 
   cmNinjaDeps emptyDeps;
