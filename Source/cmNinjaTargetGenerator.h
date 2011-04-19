@@ -107,10 +107,24 @@ protected:
   void WriteTargetBuild(const std::string& outputName,
                         const std::string& outputPath);
 
+  void WriteLanguagesRules();
+  void WriteLanguageRules(const std::string& language);
+  void WriteCompileRule(const std::string& language);
+  virtual void WriteLinkRule(const std::string& language) = 0;
+  void WriteObjectBuildStatements();
+  void WriteObjectBuildStatement(cmSourceFile* source);
+  virtual void WriteLinkStatement() = 0;
+  std::string ComputeLinkFlags(const std::string& linkLanguage);
+
+  cmNinjaDeps GetObjects() const
+  { return this->Objects; }
+
 private:
   cmTarget* Target;
   cmMakefile* Makefile;
   cmLocalNinjaGenerator* LocalGenerator;
+  /// List of object files for this target.
+  cmNinjaDeps Objects;
 };
 
 #endif // ! cmNinjaTargetGenerator_h
