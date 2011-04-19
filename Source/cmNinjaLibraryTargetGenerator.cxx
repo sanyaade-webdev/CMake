@@ -137,13 +137,14 @@ void cmNinjaLibraryTargetGenerator::WriteLinkStatement()
   cmNinjaDeps emptyDeps;
   cmNinjaVars vars;
 
+  std::string targetOutput = this->GetTargetFilePath(this->TargetNameOut);
+
   // Compute the comment.
   std::ostringstream comment;
-  comment << "Link the shared library " << this->TargetNameOut;
+  comment << "Link the shared library " << targetOutput;
 
   // Compute outputs.
   cmNinjaDeps outputs;
-  std::string targetOutput = this->GetTargetFilePath(this->TargetNameOut);
   outputs.push_back(targetOutput);
   // Add this executable to the all target.
   this->GetLocalGenerator()->AddDependencyToAll(this->GetTargetName());
