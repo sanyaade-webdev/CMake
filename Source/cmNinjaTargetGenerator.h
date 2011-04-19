@@ -98,6 +98,13 @@ protected:
   /// @return the output path for the target.
   virtual std::string GetTargetOutputDir() const;
 
+  /**
+   * Write shortcut build statements for the target name with the target
+   * output name and the target output path.
+   */
+  void WriteTargetBuild(const std::string& outputName,
+                        const std::string& outputPath);
+
 private:
   cmTarget* Target;
   cmMakefile* Makefile;

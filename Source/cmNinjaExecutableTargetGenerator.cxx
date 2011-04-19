@@ -282,7 +282,8 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
 
   // Compute outputs.
   cmNinjaDeps outputs;
-  outputs.push_back(this->GetTargetFilePath(this->TargetNameOut));
+  std::string targetOutput = this->GetTargetFilePath(this->TargetNameOut);
+  outputs.push_back(targetOutput);
   // Add this executable to the all target.
   this->GetLocalGenerator()->AddDependencyToAll(this->TargetNameOut);
 
@@ -318,6 +319,9 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
                                      emptyDeps,
                                      emptyDeps,
                                      vars);
+
+  // Write a shortcut rule with the target name.
+  this->WriteTargetBuild(this->TargetNameOut, targetOutput);
 }
 
 // TODO(Nicolas Despres): Most of the code is picked up from
