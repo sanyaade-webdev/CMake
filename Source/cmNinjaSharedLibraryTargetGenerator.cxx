@@ -9,15 +9,15 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
-#include "cmNinjaLibraryTargetGenerator.h"
+#include "cmNinjaSharedLibraryTargetGenerator.h"
 #include "cmLocalNinjaGenerator.h"
 #include "cmGlobalNinjaGenerator.h"
 #include "cmSourceFile.h"
 #include "cmGeneratedFileStream.h"
 #include "cmMakefile.h"
 
-cmNinjaLibraryTargetGenerator::
-cmNinjaLibraryTargetGenerator(cmTarget* target)
+cmNinjaSharedLibraryTargetGenerator::
+cmNinjaSharedLibraryTargetGenerator(cmTarget* target)
   : cmNinjaTargetGenerator(target)
   , TargetNameOut()
   , TargetNameSO()
@@ -33,12 +33,12 @@ cmNinjaLibraryTargetGenerator(cmTarget* target)
                                      GetLocalGenerator()->GetConfigName());
 }
 
-cmNinjaLibraryTargetGenerator::~cmNinjaLibraryTargetGenerator()
+cmNinjaSharedLibraryTargetGenerator::~cmNinjaSharedLibraryTargetGenerator()
 {
 }
 
 void
-cmNinjaLibraryTargetGenerator
+cmNinjaSharedLibraryTargetGenerator
 ::WriteLinkRule(const std::string& language)
 {
   cmLocalGenerator::RuleVariables vars;
@@ -108,7 +108,7 @@ cmNinjaLibraryTargetGenerator
                                       emptyVars);
 }
 
-void cmNinjaLibraryTargetGenerator::WriteLinkStatement()
+void cmNinjaSharedLibraryTargetGenerator::WriteLinkStatement()
 {
   // Write comments.
   cmGlobalNinjaGenerator::WriteDivider(this->GetBuildFileStream());

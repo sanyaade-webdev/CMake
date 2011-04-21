@@ -9,20 +9,20 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
-#ifndef cmNinjaLibraryTargetGenerator_h
-#  define cmNinjaLibraryTargetGenerator_h
+#ifndef cmNinjaSharedLibraryTargetGenerator_h
+#  define cmNinjaSharedLibraryTargetGenerator_h
 
 #  include "cmNinjaTargetGenerator.h"
 #  include "cmNinjaTypes.h"
 
 class cmSourceFile;
 
-class cmNinjaLibraryTargetGenerator : public cmNinjaTargetGenerator
+class cmNinjaSharedLibraryTargetGenerator : public cmNinjaTargetGenerator
 {
 public:
   /// Build a NinjaTargetGenerator.
-  cmNinjaLibraryTargetGenerator(cmTarget* target);
-  ~cmNinjaLibraryTargetGenerator();
+  cmNinjaSharedLibraryTargetGenerator(cmTarget* target);
+  ~cmNinjaSharedLibraryTargetGenerator();
 
 private:
   virtual void WriteLinkRule(const std::string& language);
@@ -37,4 +37,4 @@ private:
   std::string TargetNamePDB;
 };
 
-#endif // ! cmNinjaLibraryTargetGenerator_h
+#endif // ! cmNinjaSharedLibraryTargetGenerator_h
