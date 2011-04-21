@@ -24,8 +24,6 @@ public:
   cmNinjaExecutableTargetGenerator(cmTarget* target);
   ~cmNinjaExecutableTargetGenerator();
 
-  virtual void Generate();
-
 private:
   virtual void WriteLinkRule(const std::string& language);
   virtual void WriteLinkStatement();

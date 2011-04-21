@@ -35,21 +35,6 @@ cmNinjaExecutableTargetGenerator::~cmNinjaExecutableTargetGenerator()
 {
 }
 
-void cmNinjaExecutableTargetGenerator::Generate()
-{
-  // Write the rules for each language.
-  this->WriteLanguagesRules();
-
-  // Write the build statements
-  this->WriteObjectBuildStatements();
-
-  // Write the link statement.
-  this->WriteLinkStatement();
-
-  this->GetBuildFileStream() << "\n";
-  this->GetRulesFileStream() << "\n";
-}
-
 void
 cmNinjaExecutableTargetGenerator
 ::WriteLinkRule(const std::string& language)

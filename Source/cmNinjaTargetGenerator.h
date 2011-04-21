@@ -34,7 +34,7 @@ public:
   /// Destructor.
   ~cmNinjaTargetGenerator();
 
-  virtual void Generate() = 0;
+  virtual void Generate();
 
 protected:
   cmGeneratedFileStream& GetBuildFileStream() const;

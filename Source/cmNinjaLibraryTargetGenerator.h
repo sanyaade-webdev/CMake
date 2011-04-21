@@ -24,8 +24,6 @@ public:
   cmNinjaLibraryTargetGenerator(cmTarget* target);
   ~cmNinjaLibraryTargetGenerator();
 
-  virtual void Generate();
-
 private:
   virtual void WriteLinkRule(const std::string& language);
   virtual void WriteLinkStatement();
