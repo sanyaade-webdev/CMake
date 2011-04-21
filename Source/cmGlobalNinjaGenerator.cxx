@@ -342,9 +342,24 @@ void cmGlobalNinjaGenerator
   std::cout << "DEBUG NINJA: ARG: optional: " << optional << std::endl;
 
   this->cmGlobalGenerator::EnableLanguage(languages, mf, optional);
-  // NOTE: cmGlobalUnixMakefileGenerator3::EnableLanguage seems to
-  // do some checking and cleaning about the CMAKE_<lang>_COMPILER
-  // variables. Maybe we should add it too??
+  std::string path;
+  for(std::vector<std::string>::const_iterator l = languages.begin();
+      l != languages.end(); ++l)
+    {
+    if(*l == "NONE")
+      {
+      continue;
+      }
+    if(*l != "C" && *l != "CXX")
+      {
+      std::string message = "The \"";
+      message += this->GetName();
+      message += "\" generator does not support the language \"";
+      message += *l;
+      message += "\" yet.";
+      cmSystemTools::Error(message.c_str());
+      }
+    }
 
   std::cout << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
 }
