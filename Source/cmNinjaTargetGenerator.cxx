@@ -15,6 +15,7 @@
 #include "cmGeneratedFileStream.h"
 #include "cmNinjaExecutableTargetGenerator.h"
 #include "cmNinjaSharedLibraryTargetGenerator.h"
+#include "cmNinjaStaticLibraryTargetGenerator.h"
 #include "cmSystemTools.h"
 #include "cmMakefile.h"
 #include "cmComputeLinkInformation.h"
@@ -30,6 +31,9 @@ cmNinjaTargetGenerator::New(cmTarget* target)
 
       case cmTarget::SHARED_LIBRARY:
         return new cmNinjaSharedLibraryTargetGenerator(target);
+
+      case cmTarget::STATIC_LIBRARY:
+        return new cmNinjaStaticLibraryTargetGenerator(target);
 
       default:
         return 0;

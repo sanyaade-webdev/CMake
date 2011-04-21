@@ -217,6 +217,8 @@ SET(SRCS
   cmNinjaExecutableTargetGenerator.h
   cmNinjaSharedLibraryTargetGenerator.cxx
   cmNinjaSharedLibraryTargetGenerator.h
+  cmNinjaStaticLibraryTargetGenerator.cxx
+  cmNinjaStaticLibraryTargetGenerator.h
   cmMakeDepend.cxx
   cmMakeDepend.h
   cmMakefile.cxx

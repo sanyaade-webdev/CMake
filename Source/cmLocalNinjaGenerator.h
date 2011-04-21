@@ -115,6 +115,7 @@ private:
   friend class cmNinjaTargetGenerator;
   friend class cmNinjaExecutableTargetGenerator;
   friend class cmNinjaSharedLibraryTargetGenerator;
+  friend class cmNinjaStaticLibraryTargetGenerator;
 
 private:
   cmGeneratedFileStream& GetBuildFileStream() const;
