@@ -26,8 +26,16 @@ class cmGeneratedFileStream;
  * generator family are:
  * - We don't care about VERBOSE variable or RULE_MESSAGES property since
  *   it is handle by Ninja's -v option.
- * - We don't care about computing any progress status since ninja manages
+ * - We don't care about computing any progress status since Ninja manages
  *   it itself.
+ * - We don't care about generating a clean target since Ninja already have
+ *   a clean tool.
+ * - We generate one build.ninja and one rules.ninja per project.
+ * - We try to minimize the number of generated rules: one per target and
+ *   language.
+ * - We use Ninja special variable $in and $out to produce nice output.
+ * - We extensively use Ninja variable overloading system to minimize the
+ *   number of generated rules.
  */
 class cmGlobalNinjaGenerator : public cmGlobalGenerator
 {
