@@ -89,7 +89,7 @@ cmNinjaSharedLibraryTargetGenerator
   linkCmdVar += "_CREATE_SHARED_LIBRARY";
   std::string linkCmd =
     this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-  std::cout << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
+  std::cerr << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
 
   this->GetLocalGenerator()->ExpandRuleVariables(linkCmd, vars);
 

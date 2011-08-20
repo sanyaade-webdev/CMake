@@ -145,7 +145,7 @@ cmNinjaStaticLibraryTargetGenerator
   linkCmdVar += "_ARCHIVE_CREATE";
   std::string linkCmd =
     this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-  std::cout << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
+  std::cerr << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
   linkCmds.push_back(linkCmd);
   }
   // TODO(Nicolas Despres): I'll see later how to deals with that.
@@ -155,7 +155,7 @@ cmNinjaStaticLibraryTargetGenerator
   // linkCmdVar += "_ARCHIVE_APPEND";
   // std::string linkCmd =
   //   this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-  // std::cout << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
+  // std::cerr << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
   // linkCmds.push_back(linkCmd);
   // }
   {
@@ -164,7 +164,7 @@ cmNinjaStaticLibraryTargetGenerator
   linkCmdVar += "_ARCHIVE_FINISH";
   std::string linkCmd =
     this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-  std::cout << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
+  std::cerr << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
   linkCmds.push_back(linkCmd);
   }
   return linkCmds;

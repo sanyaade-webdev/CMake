@@ -435,7 +435,7 @@ cmNinjaTargetGenerator
   compileCmdVar += "_COMPILE_OBJECT";
   std::string compileCmd =
     this->GetMakefile()->GetRequiredDefinition(compileCmdVar.c_str());
-  std::cout << "DEBUG NINJA: COMPILE CMD: " << compileCmd << std::endl;
+  std::cerr << "DEBUG NINJA: COMPILE CMD: " << compileCmd << std::endl;
 
   this->GetLocalGenerator()->ExpandRuleVariables(compileCmd, vars);
 
