@@ -102,11 +102,6 @@ public:
 
 protected:
 
-  /// Overloaded methods. @see cmLocalGenerator::OutputLinkLibraries()
-  virtual void OutputLinkLibraries(std::ostream& fout,
-                                   cmTarget& tgt,
-                                   bool relink);
-
   /// Overloaded methods. @see cmLocalGenerator::CheckDefinition()
   virtual bool CheckDefinition(std::string const& define) const;
 

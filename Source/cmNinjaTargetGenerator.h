@@ -76,13 +76,6 @@ protected:
    */
   std::string ComputeFlagsForObject(const std::string& language);
 
-  /**
-   * Compute the flags for the linking of a target for a given @a language.
-   * @note Generally it is the value of the variable whose name is computed
-   *       by LanguageFlagsVarName().
-   */
-  std::string ComputeFlagsForLink(const std::string& language);
-
   std::string ComputeDefines(const std::string& language);
 
   /// @return the list of link dependency for the given target @a target.

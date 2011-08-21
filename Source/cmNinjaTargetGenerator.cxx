@@ -195,32 +195,6 @@ cmNinjaTargetGenerator::ComputeFlagsForObject(const std::string& language)
   return flags;
 }
 
-// TODO(Nicolas Despres): Most of the code is picked up from
-// void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink),
-// void cmMakefileTargetGenerator::WriteTargetLanguageFlags()
-// Refactor it.
-std::string
-cmNinjaTargetGenerator::ComputeFlagsForLink(const std::string& language)
-{
-  std::string flags;
-
-  this->AddFeatureFlags(flags, language.c_str());
-
-  this->GetLocalGenerator()->AddArchitectureFlags(flags,
-                                                  this->GetTarget(),
-                                                  language.c_str(),
-                                                  this->GetConfigName());
-
-  // TODO(Nicolas Despres): Will see later for the Fortran support.
-  // // Fortran-specific flags computed for this target.
-  // if(*l == "Fortran")
-  //   {
-  //   this->AddFortranFlags(flags);
-  //   }
-
-  return flags;
-}
-
 // TODO(Nicolas Despres): Refact with
 // void cmMakefileTargetGenerator::WriteTargetLanguageFlags().
 std::string
@@ -262,36 +236,12 @@ ComputeDefines(const std::string& language)
 
 cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
 {
-  cmNinjaDeps linkDeps;
-
   cmComputeLinkInformation* cli =
     this->Target->GetLinkInformation(this->GetConfigName());
   if(!cli)
-    return linkDeps;
+    return cmNinjaDeps();
 
-
-  // Append the link items.
-  typedef cmComputeLinkInformation::ItemVector ItemVector;
-  ItemVector const& items = cli->GetItems();
-  for(ItemVector::const_iterator li = items.begin(); li != items.end(); ++li)
-    {
-    std::string filename;
-    if(li->IsPath)
-      {
-      filename = this->LocalGenerator->ConvertToLinkReference(li->Value);
-      }
-    else
-      {
-      filename = li->Value;
-      }
-    std::string path = this->GetTargetOutputDir();
-    if(!path.empty())
-      path += "/";
-    path += filename;
-    linkDeps.push_back(path);
-    }
-
-  return linkDeps;
+  return cli->GetDepends();
 }
 
 std::string

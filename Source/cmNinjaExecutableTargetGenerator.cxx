@@ -71,12 +71,15 @@ cmNinjaExecutableTargetGenerator
   vars.TargetVersionMajor = targetVersionMajor.c_str();
   vars.TargetVersionMinor = targetVersionMinor.c_str();
 
-  vars.LinkLibraries = "$LDLIBS";
-  // This is mandatory to use a local variables because the string must be
-  // in memory until ExpandRuleVariables() is called.
-  std::string flags = this->LanguageFlagsVarName(language, true);
-  vars.Flags = flags.c_str();
-  vars.LinkFlags = "$LDFLAGS";
+  vars.LinkLibraries = "$LINK_LIBRARIES";
+  vars.Flags = "$FLAGS";
+  vars.LinkFlags = "$LINK_FLAGS";
+
+  std::string langFlags;
+  this->GetLocalGenerator()->AddLanguageFlags(langFlags, language.c_str(),
+                                              this->GetConfigName());
+  langFlags += "$ARCHITECTURE_FLAGS";
+  vars.LanguageCompileFlags = langFlags.c_str();
 
   // Rule for linking executable.
   std::string linkCmdVar = "CMAKE_";
@@ -133,24 +136,19 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
 
   // Compute specific libraries to link with.
-  cmNinjaDeps explicitDeps = this->GetObjects();
-  {
-  cmNinjaDeps linkDeps = this->ComputeLinkDeps();
-  for(cmNinjaDeps::const_iterator i = linkDeps.begin();
-      i != linkDeps.end();
-      ++i)
-    explicitDeps.push_back(*i);
-  std::ostringstream linkLibraries;
-  this->GetLocalGenerator()->OutputLinkLibraries(linkLibraries,
-                                                 *this->GetTarget(),
-                                                 false);
-  vars["LDLIBS"] = linkLibraries.str();
-  }
+  cmNinjaDeps explicitDeps = this->GetObjects(),
+              implicitDeps = this->ComputeLinkDeps();
+
+  this->GetLocalGenerator()->GetTargetFlags(vars["LINK_LIBRARIES"],
+                                            vars["FLAGS"],
+                                            vars["LINK_FLAGS"],
+                                            *this->GetTarget());
 
   // Compute specific link flags.
-  vars[this->LanguageFlagsVarName(linkLanguage)] =
-    this->ComputeFlagsForLink(linkLanguage);
-  vars["LDFLAGS"] = this->ComputeLinkFlags(linkLanguage);
+  this->GetLocalGenerator()->AddArchitectureFlags(vars["ARCHITECTURE_FLAGS"],
+                                                  this->GetTarget(),
+                                                  linkLanguage,
+                                                  this->GetConfigName());
 
   // Write the build statement for this target.
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
@@ -158,7 +156,7 @@ void cmNinjaExecutableTargetGenerator::WriteLinkStatement()
                                      this->LanguageLinkerRule(linkLanguage),
                                      outputs,
                                      explicitDeps,
-                                     emptyDeps,
+                                     implicitDeps,
                                      emptyDeps,
                                      vars);
 
