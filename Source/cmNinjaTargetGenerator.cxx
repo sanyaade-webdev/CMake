@@ -241,7 +241,15 @@ cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
   if(!cli)
     return cmNinjaDeps();
 
-  return cli->GetDepends();
+  const std::vector<std::string> &deps = cli->GetDepends();
+  cmNinjaDeps result;
+  for (std::vector<std::string>::const_iterator i = deps.begin();
+       i != deps.end(); ++i) {
+    result.push_back(this->LocalGenerator->Convert(i->c_str(),
+                                                  cmLocalGenerator::HOME_OUTPUT,
+                                                  cmLocalGenerator::MAKEFILE));
+  }
+  return result;
 }
 
 std::string
