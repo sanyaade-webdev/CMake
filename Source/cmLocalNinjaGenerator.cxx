@@ -273,6 +273,11 @@ bool cmLocalNinjaGenerator::CheckDefinition(std::string const& define) const
   return ret;
 }
 
+std::string cmLocalNinjaGenerator::ConvertToLinkReference(std::string const& lib)
+{
+  return this->Convert(lib.c_str(), HOME_OUTPUT, SHELL);
+}
+
 //----------------------------------------------------------------------------
 // Private methods.
 

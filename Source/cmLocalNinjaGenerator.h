@@ -105,6 +105,8 @@ protected:
   /// Overloaded methods. @see cmLocalGenerator::CheckDefinition()
   virtual bool CheckDefinition(std::string const& define) const;
 
+  virtual std::string ConvertToLinkReference(std::string const& lib);
+
 private:
   // In order to access to protected member of the local generator.
   friend class cmNinjaTargetGenerator;
