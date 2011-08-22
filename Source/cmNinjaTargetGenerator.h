@@ -60,11 +60,6 @@ protected:
 
   std::string LanguageLinkerRule(const std::string& lang) const;
 
-  std::string LanguageFlagsVarName(const std::string& language,
-                                   bool ref = false) const;
-  std::string LanguageDefinesVarName(const std::string& language,
-                                     bool ref = false) const;
-
   const char* GetFeature(const char* feature);
   bool GetFeatureAsBool(const char* feature);
   void AddFeatureFlags(std::string& flags, const char* lang);

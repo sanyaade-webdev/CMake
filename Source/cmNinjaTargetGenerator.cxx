@@ -97,28 +97,6 @@ cmNinjaTargetGenerator
     + "_LINKER";
 }
 
-std::string
-cmNinjaTargetGenerator
-::LanguageFlagsVarName(const std::string& language, bool ref) const
-{
-  std::ostringstream varname;
-  if(ref)
-    varname << "$";
-  varname << language << "_FLAGS";
-  return varname.str();
-}
-
-std::string
-cmNinjaTargetGenerator
-::LanguageDefinesVarName(const std::string& language, bool ref) const
-{
-  std::ostringstream varname;
-  if(ref)
-    varname << "$";
-  varname << language << "_DEFINES";
-  return varname.str();
-}
-
 // TODO(Nicolas Despres): Picked up from cmMakefileTargetGenerator.
 // Refactor it.
 const char* cmNinjaTargetGenerator::GetFeature(const char* feature)
@@ -376,16 +354,8 @@ cmNinjaTargetGenerator
   vars.Source = "$in";
   vars.Object = "$out";
 
-  // FIXME(Nicolas Despres): Factor flags construction with the
-  // cmMakefileTargetGenerator::WriteObjectBuildFile
-  // This is mandatory to use a local variables because the string must be
-  // in memory until ExpandRuleVariables() is called.
-  std::string flags = this->LanguageFlagsVarName(language, true);
-  vars.Flags = flags.c_str();
-  // FIXME(Nicolas Despres): Factor defines construction with the
-  // cmMakefileTargetGenerator::WriteObjectBuildFile
-  std::string defines = this->LanguageDefinesVarName(language, true);
-  vars.Defines = defines.c_str();
+  vars.Flags = "$FLAGS";
+  vars.Defines = "$DEFINES";
 
   // Rule for compiling object file.
   std::string compileCmdVar = "CMAKE_";
@@ -463,10 +433,8 @@ cmNinjaTargetGenerator
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
 
   cmNinjaVars vars;
-  vars[this->LanguageFlagsVarName(linkLanguage)] =
-    this->ComputeFlagsForObject(linkLanguage);
-  vars[this->LanguageDefinesVarName(linkLanguage)] =
-    this->ComputeDefines(linkLanguage);
+  vars["FLAGS"] = this->ComputeFlagsForObject(linkLanguage);
+  vars["DEFINES"] = this->ComputeDefines(linkLanguage);
 
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                      comment,
