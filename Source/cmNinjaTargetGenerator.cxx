@@ -267,7 +267,11 @@ cmNinjaTargetGenerator
 
 std::string cmNinjaTargetGenerator::GetTargetOutputDir() const
 {
-  return this->LocalGenerator->GetHomeRelativeOutputPath();
+  std::string dir = this->Target->GetDirectory(this->GetConfigName());
+  cmSystemTools::MakeDirectory(dir.c_str());
+  return this->LocalGenerator->Convert(dir.c_str(),
+                                       cmLocalGenerator::HOME_OUTPUT,
+                                       cmLocalGenerator::MAKEFILE);
 }
 
 std::string
