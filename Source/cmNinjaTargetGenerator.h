@@ -69,9 +69,10 @@ protected:
    * @note Generally it is the value of the variable whose name is computed
    *       by LanguageFlagsVarName().
    */
-  std::string ComputeFlagsForObject(const std::string& language);
+  std::string ComputeFlagsForObject(cmSourceFile *source,
+                                    const std::string& language);
 
-  std::string ComputeDefines(const std::string& language);
+  std::string ComputeDefines(cmSourceFile *source, const std::string& language);
 
   /// @return the list of link dependency for the given target @a target.
   cmNinjaDeps ComputeLinkDeps() const;

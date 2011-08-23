@@ -130,7 +130,8 @@ void cmNinjaTargetGenerator::AddFeatureFlags(std::string& flags,
 // void cmMakefileTargetGenerator::WriteTargetLanguageFlags()
 // Refactor it.
 std::string
-cmNinjaTargetGenerator::ComputeFlagsForObject(const std::string& language)
+cmNinjaTargetGenerator::ComputeFlagsForObject(cmSourceFile *source,
+                                              const std::string& language)
 {
   std::string flags;
 
@@ -166,6 +167,12 @@ cmNinjaTargetGenerator::ComputeFlagsForObject(const std::string& language)
   // Append old-style preprocessor definition flags.
   this->LocalGenerator->AppendFlags(flags, this->Makefile->GetDefineFlags());
 
+  // Add target-specific and source-specific flags.
+  this->LocalGenerator->AppendFlags(flags,
+                                    this->Target->GetProperty("COMPILE_FLAGS"));
+  this->LocalGenerator->AppendFlags(flags,
+                                    source->GetProperty("COMPILE_FLAGS"));
+
   // TODO(Nicolas Despres): Handle Apple frameworks.
   // Add include directory flags.
   // this->LocalGenerator->AppendFlags(flags, this->GetFrameworkFlags().c_str());
@@ -177,7 +184,7 @@ cmNinjaTargetGenerator::ComputeFlagsForObject(const std::string& language)
 // void cmMakefileTargetGenerator::WriteTargetLanguageFlags().
 std::string
 cmNinjaTargetGenerator::
-ComputeDefines(const std::string& language)
+ComputeDefines(cmSourceFile *source, const std::string& language)
 {
   std::string defines;
 
@@ -196,6 +203,10 @@ ComputeDefines(const std::string& language)
     (defines,
      this->Target->GetProperty("COMPILE_DEFINITIONS"),
      language.c_str());
+  this->LocalGenerator->AppendDefines
+    (defines,
+     source->GetProperty("COMPILE_DEFINITIONS"),
+     language.c_str());
   {
   std::string defPropName = "COMPILE_DEFINITIONS_";
   defPropName += cmSystemTools::UpperCase(this->GetConfigName());
@@ -206,6 +217,10 @@ ComputeDefines(const std::string& language)
   this->LocalGenerator->AppendDefines
     (defines,
      this->Target->GetProperty(defPropName.c_str()),
+     language.c_str());
+  this->LocalGenerator->AppendDefines
+    (defines,
+     source->GetProperty(defPropName.c_str()),
      language.c_str());
   }
 
@@ -433,8 +448,8 @@ cmNinjaTargetGenerator
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
 
   cmNinjaVars vars;
-  vars["FLAGS"] = this->ComputeFlagsForObject(linkLanguage);
-  vars["DEFINES"] = this->ComputeDefines(linkLanguage);
+  vars["FLAGS"] = this->ComputeFlagsForObject(source, linkLanguage);
+  vars["DEFINES"] = this->ComputeDefines(source, linkLanguage);
 
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                      comment,
