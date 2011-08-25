@@ -118,6 +118,17 @@ cmNinjaStaticLibraryTargetGenerator
                                       description.str(),
                                       depfile,
                                       emptyVars);
+
+  std::string cmakeCommand =
+    this->GetMakefile()->GetRequiredDefinition("CMAKE_COMMAND");
+  this->GetGlobalGenerator()->AddRule("CMAKE_SYMLINK_LIBRARY",
+                                      cmakeCommand +
+                                      " -E cmake_symlink_library"
+                                      " $in $SONAME $out",
+                                      "Rule for creating library symlink.",
+                                      "Creating library symlink $out",
+                                      depfile,
+                                      emptyVars);
 }
 
 std::vector<std::string>
@@ -186,14 +197,15 @@ void cmNinjaStaticLibraryTargetGenerator::WriteLinkStatement()
   cmNinjaVars vars;
 
   std::string targetOutput = this->GetTargetFilePath(this->TargetNameOut);
+  std::string targetOutputReal = this->GetTargetFilePath(this->TargetNameReal);
 
   // Compute the comment.
   std::ostringstream comment;
-  comment << "Link the static library " << targetOutput;
+  comment << "Link the static library " << targetOutputReal;
 
   // Compute outputs.
   cmNinjaDeps outputs;
-  outputs.push_back(targetOutput);
+  outputs.push_back(targetOutputReal);
   // Add this executable to the all target.
   this->GetLocalGenerator()->AddDependencyToAll(this->GetTargetName());
 
@@ -225,6 +237,19 @@ void cmNinjaStaticLibraryTargetGenerator::WriteLinkStatement()
                                      implicitDeps,
                                      emptyDeps,
                                      vars);
+
+  if (targetOutput != targetOutputReal) {
+    cmNinjaVars symlinkVars;
+    symlinkVars["SONAME"] = this->TargetNameSO;
+    cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
+                                       "Create library symlink " + targetOutput,
+                                       "CMAKE_SYMLINK_LIBRARY",
+                                       cmNinjaDeps(1, targetOutput),
+                                       cmNinjaDeps(1, targetOutputReal),
+                                       emptyDeps,
+                                       emptyDeps,
+                                       symlinkVars);
+  }
 
   // Write a shortcut rule with the target name.
   this->WriteTargetBuild(this->TargetNameOut, targetOutput);
