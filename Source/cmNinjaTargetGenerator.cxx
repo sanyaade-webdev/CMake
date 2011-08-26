@@ -448,6 +448,12 @@ cmNinjaTargetGenerator
   std::string sourceFileName = this->GetSourceFilePath(source);
   explicitDeps.push_back(sourceFileName);
 
+  // Ensure that the utilities for this target are built before any source file
+  // in the target.
+  cmNinjaDeps implicitDeps;
+  std::set<cmStdString> const& utils = this->Target->GetUtilities();
+  implicitDeps.insert(implicitDeps.end(), utils.begin(), utils.end());
+
   const char* linkLanguage =
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
 
@@ -460,7 +466,7 @@ cmNinjaTargetGenerator
                                      rule,
                                      outputs,
                                      explicitDeps,
-                                     emptyDeps,
+                                     implicitDeps,
                                      emptyDeps,
                                      vars);
 }
