@@ -285,28 +285,12 @@ void cmGlobalNinjaGenerator
     "\"all\" target.  An \"install\" target is also provided.";
 }
 
-// Implemented by:
-//   cmGlobalVisualStudio7Generator
-//   cmGlobalVisualStudio8Generator
-// Used in:
-//   Source/cmake.cxx
-void cmGlobalNinjaGenerator::Configure()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmGlobalGenerator::Configure();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
 // Implemented in all cmGlobaleGenerator sub-classes.
 // Used in:
 //   Source/cmLocalGenerator.cxx
 //   Source/cmake.cxx
 void cmGlobalNinjaGenerator::Generate()
 {
-  std::cerr << "DEBUG NINJA: BEGIN: "
-            << __PRETTY_FUNCTION__
-            << " (" << this << ")" << std::endl;
-
   this->OpenBuildFileStream();
   this->OpenRulesFileStream();
 
@@ -316,10 +300,6 @@ void cmGlobalNinjaGenerator::Generate()
 
   this->CloseRulesFileStream();
   this->CloseBuildFileStream();
-
-  std::cerr << "DEBUG NINJA: END: "
-            << __PRETTY_FUNCTION__
-            << " (" << this << ")" << std::endl;
 }
 
 // Implemented in all cmGlobaleGenerator sub-classes.
@@ -330,17 +310,6 @@ void cmGlobalNinjaGenerator
                  cmMakefile *mf,
                  bool optional)
 {
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: languages: ";
-  for (std::vector<std::string>::const_iterator l = languages.begin();
-       l != languages.end();
-       ++l)
-    std::cerr << "'" << *l << "', ";
-  std::cerr << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: cmMakefile: " << mf
-            << " project: '" << mf->GetProjectName() << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: optional: " << optional << std::endl;
-
   this->cmGlobalGenerator::EnableLanguage(languages, mf, optional);
   std::string path;
   for(std::vector<std::string>::const_iterator l = languages.begin();
@@ -360,57 +329,6 @@ void cmGlobalNinjaGenerator
       cmSystemTools::Error(message.c_str());
       }
     }
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Not implemented in none of cmLocalGenerator sub-classes.
-// Used nowhere.
-void cmGlobalNinjaGenerator
-::EnableLanguagesFromGenerator(cmGlobalGenerator* gen,
-                               cmMakefile* mf)
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: cmGlobaleGenerator: " << gen
-            << " name: '" << gen->GetName() << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: mf: " << mf
-            << " project: '" << mf->GetProjectName() << "'" << std::endl;
-
-  cmGlobalGenerator::EnableLanguagesFromGenerator(gen, mf);
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Not implemented in none of cmLocalGenerator sub-classes.
-// Used in:
-//   Source/cmMakefile.cxx
-int cmGlobalNinjaGenerator::TryCompile(const char* srcdir,
-                                       const char* bindir,
-                                       const char* projectName,
-                                       const char* targetName,
-                                       bool fast,
-                                       std::string* output,
-                                       cmMakefile* mf)
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: srcdir: '" << srcdir << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: bindir: '" << bindir << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: projectName: '" << projectName << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: fast: '" << fast << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: output: '" << *output << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: mf: " << mf
-            << " project: '" << mf->GetProjectName() << "'" << std::endl;
-
-  int ret = cmGlobalGenerator::TryCompile(srcdir,
-                                          bindir,
-                                          projectName,
-                                          targetName,
-                                          fast,
-                                          output,
-                                          mf);
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
 }
 
 // Implemented by:
@@ -430,14 +348,6 @@ std::string cmGlobalNinjaGenerator
                        bool ignoreErrors,
                        bool fast)
 {
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: makeProgram: '" << makeProgram << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: projectName: '" << projectName << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: additionalOptions: '" << (additionalOptions ? additionalOptions : "NULL") << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: targetName: '" << targetName << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: ignoreErrors: '" << ignoreErrors << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: fast: '" << fast << "'" << std::endl;
-
   // Project name and config are not used yet.
   (void)projectName;
   (void)config;
@@ -460,8 +370,6 @@ std::string cmGlobalNinjaGenerator
     makeCommand += targetName;
     }
 
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__
-            << " RESULT='" << makeCommand << "'" << std::endl;
   return makeCommand;
 }
 
@@ -490,58 +398,6 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                     variables);
 }
 
-
-//----------------------------------------------------------------------------
-// Virtual protected methods.
-
-// Not implemented in UnixMakefile generator.
-void cmGlobalNinjaGenerator::GetTargetSets(TargetDependSet& projectTargets,
-                                           TargetDependSet& originalTargets,
-                                           cmLocalGenerator* root,
-                                           GeneratorVector const& generators)
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-
-  cmGlobalGenerator::GetTargetSets(projectTargets,
-                                   originalTargets,
-                                   root,
-                                   generators);
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Not implemented in UnixMakefile generator.
-bool cmGlobalNinjaGenerator::IsRootOnlyTarget(cmTarget* target)
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: target: " << target
-            << " name: '" << target->GetName() << "'"
-            << " type: '" << cmTarget::TargetTypeNames(target->GetType()) << "'"
-            << std::endl;
-
-  bool ret = cmGlobalGenerator::IsRootOnlyTarget(target);
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
-}
-
-// Not implemented in UnixMakefile generator.
-bool cmGlobalNinjaGenerator::ComputeTargetDepends()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  bool ret = cmGlobalGenerator::ComputeTargetDepends();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
-}
-
-// Not implemented in UnixMakefile generator.
-const char* cmGlobalNinjaGenerator::GetPredefinedTargetsFolder()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  const char* ret = cmGlobalGenerator::GetPredefinedTargetsFolder();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
-}
 
 //----------------------------------------------------------------------------
 // Private methods

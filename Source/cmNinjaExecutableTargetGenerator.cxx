@@ -87,7 +87,6 @@ cmNinjaExecutableTargetGenerator
   linkCmdVar += "_LINK_EXECUTABLE";
   std::string linkCmd =
     this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-  std::cerr << "DEBUG NINJA: " << linkCmdVar << " = " << linkCmd << std::endl;
 
   this->GetLocalGenerator()->ExpandRuleVariables(linkCmd, vars);
 

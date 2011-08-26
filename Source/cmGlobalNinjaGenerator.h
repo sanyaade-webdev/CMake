@@ -145,28 +145,13 @@ public:
   /// Overloaded methods. @see cmGlobalGenerator::GetDocumentation()
   virtual void GetDocumentation(cmDocumentationEntry& entry) const;
 
-  /// Overloaded methods. @see cmGlobalGenerator::Configure()
-  virtual void Configure();
-
-  /// Overloaded methods. @see cmGlobalGenerator::Gonfigure()
+  /// Overloaded methods. @see cmGlobalGenerator::Generate()
   virtual void Generate();
 
   /// Overloaded methods. @see cmGlobalGenerator::EnableLanguage()
   virtual void EnableLanguage(std::vector<std::string>const& languages,
                               cmMakefile* mf,
                               bool optional);
-
-  /// Overloaded methods. @see cmGlobalGenerator::EnableLanguagesFromGenerator()
-  virtual void EnableLanguagesFromGenerator(cmGlobalGenerator* gen,
-                                            cmMakefile* mf);
-
-  /// Overloaded methods. @see cmGlobalGenerator::TryCompile()
-  virtual int TryCompile(const char* srcdir,
-                         const char* bindir,
-                         const char* projectName,
-                         const char* targetName,
-                         bool fast, std::string* output,
-                         cmMakefile* mf);
 
   /// Overloaded methods. @see cmGlobalGenerator::GenerateBuildCommand()
   virtual std::string GenerateBuildCommand(const char* makeProgram,
@@ -211,23 +196,9 @@ public:
 
 protected:
 
-  /// Overloaded methods. @see cmGlobalGenerator::GetTargetSets()
-  virtual void GetTargetSets(TargetDependSet& projectTargets,
-                             TargetDependSet& originalTargets,
-                             cmLocalGenerator* root,
-                             GeneratorVector const& generators);
-  /// Overloaded methods. @see cmGlobalGenerator::IsRootOnlyTarget()
-  virtual bool IsRootOnlyTarget(cmTarget* target);
-
-  /// Overloaded methods. @see cmGlobalGenerator::ComputeTargetDepends()
-  virtual bool ComputeTargetDepends();
-
   /// Overloaded methods.
   /// @see cmGlobalGenerator::CheckALLOW_DUPLICATE_CUSTOM_TARGETS()
   virtual bool CheckALLOW_DUPLICATE_CUSTOM_TARGETS() { return true; }
-
-  /// Overloaded methods. @see cmGlobalGenerator::GetPredefinedTargetsFolder()
-  virtual const char* GetPredefinedTargetsFolder();
 
 private:
   // In order to access the AddDependencyToAll() functions and co.

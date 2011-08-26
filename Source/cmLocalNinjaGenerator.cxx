@@ -32,21 +32,10 @@ cmLocalNinjaGenerator::cmLocalNinjaGenerator()
 
 cmLocalNinjaGenerator::~cmLocalNinjaGenerator()
 {
-  std::cerr << "DEBUG NINJA: LOCAL GENERATOR DESTRUCTOR: "
-            << this << std::endl;
 }
 
 void cmLocalNinjaGenerator::Generate()
 {
-  std::cerr << "DEBUG NINJA: BEGIN: "
-            << __PRETTY_FUNCTION__
-            << " (" << this << ")" << std::endl;
-  std::cerr << "DEBUG NINJA: CURRENT DIRECTORY: "
-            << this->Makefile->GetCurrentDirectory() << std::endl;
-  std::cerr << "DEBUG NINJA: CURRENT OUTPUT DIRECTORY: "
-            << this->Makefile->GetCurrentOutputDirectory() << std::endl;
-  std::cerr << "DEBUG NINJA: CURRENT LIST FILE: "
-            << this->Makefile->GetCurrentListFile() << std::endl;
 
 
   this->SetConfigName();
@@ -67,9 +56,6 @@ void cmLocalNinjaGenerator::Generate()
       }
     }
 
-  std::cerr << "DEBUG NINJA: END: "
-            << __PRETTY_FUNCTION__
-            << " (" << this << ")" << std::endl;
 }
 
 // Implemented in:
@@ -79,8 +65,6 @@ void cmLocalNinjaGenerator::Generate()
 //   Source/cmGlobalGenerator.cxx
 void cmLocalNinjaGenerator::Configure()
 {
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-
   // Compute the path to use when referencing the current output
   // directory from the top output directory.
   this->HomeRelativeOutputPath =
@@ -91,113 +75,6 @@ void cmLocalNinjaGenerator::Configure()
     }
   this->cmLocalGenerator::Configure();
 
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Not implemented in none of cmLocalGenerator sub-classes.
-void cmLocalNinjaGenerator::TraceDependencies()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::TraceDependencies();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Implemented only in some VisualStudio local generator.
-void cmLocalNinjaGenerator::AddHelperCommands()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::AddHelperCommands();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Implemented only in some VisualStudio local generator.
-void cmLocalNinjaGenerator::ConfigureFinalPass()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::ConfigureFinalPass();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Not implemented in none of cmLocalGenerator sub-classes.
-void cmLocalNinjaGenerator::GenerateInstallRules()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::GenerateInstallRules();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Not implemented in none of cmLocalGenerator sub-classes.
-void cmLocalNinjaGenerator::GenerateTestFiles()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::GenerateTestFiles();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Not implemented in none of cmLocalGenerator sub-classes.
-void cmLocalNinjaGenerator::GenerateTargetManifest()
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  cmLocalGenerator::GenerateTargetManifest();
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Implemented only in UnixMakefile local generator.
-// Used in:
-//   Source/cmake.cxx
-void cmLocalNinjaGenerator::ClearDependencies(cmMakefile* mf,
-                                              bool verbose)
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: cmMakefile: " << mf
-            << " project: '" << mf->GetProjectName() << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: verbose: " << verbose << std::endl;
-
-  cmLocalGenerator::ClearDependencies(mf, verbose);
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-}
-
-// Implemented only in UnixMakefile local generator.
-// Used in:
-//   Source/cmake.cxx
-bool cmLocalNinjaGenerator::UpdateDependencies(const char* tgtInfo,
-                                               bool verbose,
-                                               bool color)
-{
-  std::cerr << "DEBUG NINJA: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: tgtInfo: '" << tgtInfo << "'" << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: verbose: " << verbose << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: color: " << color << std::endl;
-
-  bool ret = cmLocalGenerator::UpdateDependencies(tgtInfo, verbose, color);
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
-  return ret;
-}
-
-// Implemented in almost all cmLocalGenerator sub-classes.
-// Used in:
-//   Source/cmTarget.cxx:
-void cmLocalNinjaGenerator
-::GetTargetObjectFileDirectories(cmTarget* target,
-                                 std::vector<std::string>& dirs)
-{
-  std::cerr << "DEBUG NINJA: BEGIN: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: target: " << target
-            << " name: '" << target->GetName() << "'"
-            << " type: '" << cmTarget::TargetTypeNames(target->GetType()) << "'"
-            << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: dirs: ";
-  for(std::vector<std::string>::const_iterator d = dirs.begin();
-      d != dirs.end();
-      ++d)
-    std::cerr << "'" << *d << "', ";
-  std::cerr << std::endl;
-
-  cmLocalGenerator::GetTargetObjectFileDirectories(target, dirs);
-
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
 }
 
 // TODO(Nicolas Despres): Picked up from cmLocalUnixMakefileGenerator3.
@@ -264,12 +141,9 @@ cmLocalNinjaGenerator
 //   Source/cmLocalVisualStudio6Generator.cxx
 bool cmLocalNinjaGenerator::CheckDefinition(std::string const& define) const
 {
-  std::cerr << "DEBUG NINJA: " << __PRETTY_FUNCTION__ << std::endl;
-  std::cerr << "DEBUG NINJA: ARG: define: '" << define << "'" << std::endl;
 
   bool ret = cmLocalGenerator::CheckDefinition(define);
 
-  std::cerr << "DEBUG NINJA: END: " << __PRETTY_FUNCTION__ << std::endl;
   return ret;
 }
 

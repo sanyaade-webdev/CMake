@@ -41,39 +41,6 @@ public:
   /// Overloaded methods. @see cmLocalGenerator::Configure()
   virtual void Configure();
 
-  /// Overloaded methods. @see cmLocalGenerator::TraceDependencies()
-  virtual void TraceDependencies();
-
-  /// Overloaded methods. @see cmLocalGenerator::AddHelperCommands()
-  virtual void AddHelperCommands();
-
-  /// Overloaded methods. @see cmLocalGenerator::ConfigureFinalPass()
-  virtual void ConfigureFinalPass();
-
-  /// Overloaded methods. @see cmLocalGenerator::GenerateInstallRules()
-  virtual void GenerateInstallRules();
-
-  /// Overloaded methods. @see cmLocalGenerator::GenerateTestFiles()
-  virtual void GenerateTestFiles();
-
-  /// Overloaded methods. @see cmLocalGenerator::GenerateTargetManifest()
-  virtual void GenerateTargetManifest();
-
-  /// Overloaded methods. @see cmLocalGenerator::ClearDependencies()
-  virtual void ClearDependencies(cmMakefile* mf, bool verbose);
-
-  /// Overloaded methods. @see cmLocalGenerator::UpdateDependencies()
-  virtual bool UpdateDependencies(const char* tgtInfo,
-                                  bool verbose,
-                                  bool color);
-
-  /// Overloaded methods.
-  /// @see cmLocalGenerator::GetTargetObjectFileDirectories()
-  /// Get the directories into which the .o files will go for this target.
-  virtual void
-    GetTargetObjectFileDirectories(cmTarget* target,
-                                   std::vector<std::string>& dirs);
-
   /// Overloaded methods. @see cmLocalGenerator::GetTargetDirectory()
   virtual std::string GetTargetDirectory(cmTarget const& target) const;
 
