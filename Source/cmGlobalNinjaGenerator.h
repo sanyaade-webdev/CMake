@@ -194,6 +194,8 @@ public:
                const std::string& depfile,
                const cmNinjaVars& variables);
 
+  bool HasRule(const std::string& name);
+
 protected:
 
   /// Overloaded methods.

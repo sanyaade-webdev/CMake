@@ -13,9 +13,7 @@
 #include "cmGlobalNinjaGenerator.h"
 #include "cmLocalNinjaGenerator.h"
 #include "cmGeneratedFileStream.h"
-#include "cmNinjaExecutableTargetGenerator.h"
-#include "cmNinjaSharedLibraryTargetGenerator.h"
-#include "cmNinjaStaticLibraryTargetGenerator.h"
+#include "cmNinjaNormalTargetGenerator.h"
 #include "cmSystemTools.h"
 #include "cmMakefile.h"
 #include "cmComputeLinkInformation.h"
@@ -27,13 +25,9 @@ cmNinjaTargetGenerator::New(cmTarget* target)
   switch (target->GetType())
     {
       case cmTarget::EXECUTABLE:
-        return new cmNinjaExecutableTargetGenerator(target);
-
       case cmTarget::SHARED_LIBRARY:
-        return new cmNinjaSharedLibraryTargetGenerator(target);
-
       case cmTarget::STATIC_LIBRARY:
-        return new cmNinjaStaticLibraryTargetGenerator(target);
+        return new cmNinjaNormalTargetGenerator(target);
 
       default:
         return 0;
@@ -85,16 +79,6 @@ cmGlobalNinjaGenerator* cmNinjaTargetGenerator::GetGlobalGenerator() const
 const char* cmNinjaTargetGenerator::GetConfigName() const
 {
   return this->LocalGenerator->ConfigName.c_str();
-}
-
-std::string
-cmNinjaTargetGenerator
-::LanguageLinkerRule(const std::string& lang) const
-{
-  return lang
-    + "_"
-    + cmTarget::TargetTypeNames(this->GetTarget()->GetType())
-    + "_LINKER";
 }
 
 // TODO(Nicolas Despres): Picked up from cmMakefileTargetGenerator.
@@ -348,6 +332,7 @@ void cmNinjaTargetGenerator::WriteLanguagesRules()
       l != languages.end();
       ++l)
     this->WriteLanguageRules(*l);
+  this->WriteLinkRule();
 }
 
 void
@@ -358,7 +343,6 @@ cmNinjaTargetGenerator
     << "# Rules for language " << language << "\n\n";
   this->WriteCompileRule(language);
   this->GetRulesFileStream() << "\n";
-  this->WriteLinkRule(language);
 }
 
 void

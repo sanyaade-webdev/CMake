@@ -384,8 +384,7 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                      const cmNinjaVars& variables)
 {
   // Do not add twice the same rule.
-  RulesSetType::const_iterator rule = this->Rules.find(name);
-  if (rule != this->Rules.end())
+  if (this->HasRule(name))
     return;
 
   this->Rules.insert(name);
@@ -398,6 +397,10 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                     variables);
 }
 
+bool cmGlobalNinjaGenerator::HasRule(const std::string &name) {
+  RulesSetType::const_iterator rule = this->Rules.find(name);
+  return (rule != this->Rules.end());
+}
 
 //----------------------------------------------------------------------------
 // Private methods

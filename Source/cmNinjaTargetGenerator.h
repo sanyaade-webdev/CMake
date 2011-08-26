@@ -58,8 +58,6 @@ protected:
   std::string LanguageCompilerRule(const std::string& lang) const
   { return lang + "_COMPILER"; }
 
-  std::string LanguageLinkerRule(const std::string& lang) const;
-
   const char* GetFeature(const char* feature);
   bool GetFeatureAsBool(const char* feature);
   void AddFeatureFlags(std::string& flags, const char* lang);
@@ -99,7 +97,7 @@ protected:
   void WriteLanguagesRules();
   void WriteLanguageRules(const std::string& language);
   void WriteCompileRule(const std::string& language);
-  virtual void WriteLinkRule(const std::string& language) = 0;
+  virtual void WriteLinkRule() = 0;
   void WriteObjectBuildStatements();
   void WriteObjectBuildStatement(cmSourceFile* source);
   virtual void WriteLinkStatement() = 0;

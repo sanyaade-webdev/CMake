@@ -77,9 +77,7 @@ protected:
 private:
   // In order to access to protected member of the local generator.
   friend class cmNinjaTargetGenerator;
-  friend class cmNinjaExecutableTargetGenerator;
-  friend class cmNinjaSharedLibraryTargetGenerator;
-  friend class cmNinjaStaticLibraryTargetGenerator;
+  friend class cmNinjaNormalTargetGenerator;
 
 private:
   cmGeneratedFileStream& GetBuildFileStream() const;

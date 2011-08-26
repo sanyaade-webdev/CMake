@@ -9,31 +9,35 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
-#ifndef cmNinjaExecutableTargetGenerator_h
-#  define cmNinjaExecutableTargetGenerator_h
+#ifndef cmNinjaStaticLibraryTargetGenerator_h
+#  define cmNinjaStaticLibraryTargetGenerator_h
 
 #  include "cmNinjaTargetGenerator.h"
 #  include "cmNinjaTypes.h"
 
 class cmSourceFile;
 
-class cmNinjaExecutableTargetGenerator : public cmNinjaTargetGenerator
+class cmNinjaNormalTargetGenerator : public cmNinjaTargetGenerator
 {
 public:
-  /// Build a NinjaTargetGenerator.
-  cmNinjaExecutableTargetGenerator(cmTarget* target);
-  ~cmNinjaExecutableTargetGenerator();
+  cmNinjaNormalTargetGenerator(cmTarget* target);
+  ~cmNinjaNormalTargetGenerator();
 
 private:
-  virtual void WriteLinkRule(const std::string& language);
+  std::string LanguageLinkerRule() const;
+  const char* GetVisibleTypeName() const;
+  virtual void WriteLinkRule();
   virtual void WriteLinkStatement();
+  std::vector<std::string> ComputeLinkCmd();
 
 private:
   // Target name info.
   std::string TargetNameOut;
+  std::string TargetNameSO;
   std::string TargetNameReal;
   std::string TargetNameImport;
   std::string TargetNamePDB;
+  const char *TargetLinkLanguage;
 };
 
-#endif // ! cmNinjaExecutableTargetGenerator_h
+#endif // ! cmNinjaStaticLibraryTargetGenerator_h
