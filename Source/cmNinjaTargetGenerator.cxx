@@ -263,8 +263,9 @@ cmNinjaTargetGenerator
 ::GetTargetFilePath(const std::string& name) const
 {
   std::string path = this->GetTargetOutputDir();
-  if(!path.empty())
-    path += "/";
+  if (path.empty() || path == ".")
+    return name;
+  path += "/";
   path += name;
   return path;
 }
