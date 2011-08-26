@@ -141,9 +141,8 @@ cmNinjaStaticLibraryTargetGenerator
   std::string linkCmdVar = "CMAKE_";
   linkCmdVar += language;
   linkCmdVar += "_CREATE_STATIC_LIBRARY";
-  std::string linkCmd =
-    this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-  if(!linkCmd.empty())
+  if (const char *linkCmd =
+        this->GetMakefile()->GetDefinition(linkCmdVar.c_str()))
     {
     linkCmds.push_back(linkCmd);
     return linkCmds;
