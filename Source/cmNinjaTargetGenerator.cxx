@@ -412,6 +412,9 @@ void
 cmNinjaTargetGenerator
 ::WriteObjectBuildStatement(cmSourceFile* source)
 {
+  if (cmCustomCommand *cc = source->GetCustomCommand())
+    WriteCustomCommandBuildStatement(cc);
+
   cmNinjaDeps emptyDeps;
 
   std::string comment;
@@ -502,4 +505,54 @@ cmNinjaTargetGenerator
   // this->AddModuleDefinitionFlag(linkFlags);
 
   return linkFlags;
+}
+
+void
+cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
+  this->GetGlobalGenerator()->AddRule("CUSTOM_COMMAND",
+                                      "$COMMAND",
+                                      "Rule for running custom commands.",
+                                      "$DESC",
+                                      /*depfile*/ "",
+                                      cmNinjaVars());
+
+  const std::vector<std::string> &outputs = cc->GetOutputs();
+  const std::vector<std::string> &deps = cc->GetDepends();
+  cmNinjaDeps ninjaOutputs(outputs.size()), ninjaDeps;
+
+  std::transform(outputs.begin(), outputs.end(),
+                 ninjaOutputs.begin(), MapToNinjaPath());
+  for (std::vector<std::string>::const_iterator i = deps.begin();
+       i != deps.end(); ++i) {
+    std::string dep;
+    if (this->LocalGenerator->GetRealDependency(i->c_str(),
+                                                this->GetConfigName(), dep))
+      ninjaDeps.push_back(ConvertToNinjaPath(dep.c_str()));
+  }
+
+  std::ostringstream cmd;
+  for (cmCustomCommandLines::const_iterator li = cc->GetCommandLines().begin();
+       li != cc->GetCommandLines().end(); ++li) {
+    if (li != cc->GetCommandLines().begin())
+      cmd << " && ";
+    for (cmCustomCommandLine::const_iterator wi = li->begin();
+         wi != li->end(); ++wi) {
+      if (wi != li->begin())
+        cmd << " ";
+      cmd << *wi;
+    }
+  }
+
+  cmNinjaVars vars;
+  vars["COMMAND"] = cmd.str();
+  vars["DESC"] = this->LocalGenerator->ConstructComment(*cc);
+
+  cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
+                                     "Custom command for " + ninjaOutputs[0],
+                                     "CUSTOM_COMMAND",
+                                     ninjaOutputs,
+                                     ninjaDeps,
+                                     cmNinjaDeps(),
+                                     cmNinjaDeps(),
+                                     vars);
 }

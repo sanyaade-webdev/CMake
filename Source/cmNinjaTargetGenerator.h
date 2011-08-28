@@ -21,6 +21,7 @@ class cmGlobalNinjaGenerator;
 class cmGeneratedFileStream;
 class cmMakefile;
 class cmSourceFile;
+class cmCustomCommand;
 
 class cmNinjaTargetGenerator
 {
@@ -116,6 +117,7 @@ protected:
   void WriteObjectBuildStatements();
   void WriteObjectBuildStatement(cmSourceFile* source);
   virtual void WriteLinkStatement() = 0;
+  void WriteCustomCommandBuildStatement(cmCustomCommand *cc);
   std::string ComputeLinkFlags(const std::string& linkLanguage);
 
   cmNinjaDeps GetObjects() const
