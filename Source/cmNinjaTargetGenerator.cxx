@@ -19,6 +19,8 @@
 #include "cmComputeLinkInformation.h"
 #include "cmSourceFile.h"
 
+#include <algorithm>
+
 cmNinjaTargetGenerator *
 cmNinjaTargetGenerator::New(cmTarget* target)
 {
@@ -211,6 +213,13 @@ ComputeDefines(cmSourceFile *source, const std::string& language)
   return defines;
 }
 
+std::string cmNinjaTargetGenerator::ConvertToNinjaPath(const char *path) const
+{
+  return this->LocalGenerator->Convert(path,
+                                       cmLocalGenerator::HOME_OUTPUT,
+                                       cmLocalGenerator::MAKEFILE);
+}
+
 cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
 {
   cmComputeLinkInformation* cli =
@@ -219,13 +228,8 @@ cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
     return cmNinjaDeps();
 
   const std::vector<std::string> &deps = cli->GetDepends();
-  cmNinjaDeps result;
-  for (std::vector<std::string>::const_iterator i = deps.begin();
-       i != deps.end(); ++i) {
-    result.push_back(this->LocalGenerator->Convert(i->c_str(),
-                                                  cmLocalGenerator::HOME_OUTPUT,
-                                                  cmLocalGenerator::MAKEFILE));
-  }
+  cmNinjaDeps result(deps.size());
+  std::transform(deps.begin(), deps.end(), result.begin(), MapToNinjaPath());
   return result;
 }
 
@@ -233,9 +237,7 @@ std::string
 cmNinjaTargetGenerator
 ::GetSourceFilePath(cmSourceFile* source) const
 {
-  return this->LocalGenerator->Convert(source->GetFullPath().c_str(),
-                                       cmLocalGenerator::HOME_OUTPUT,
-                                       cmLocalGenerator::MAKEFILE);
+  return ConvertToNinjaPath(source->GetFullPath().c_str());
 }
 
 std::string
@@ -253,9 +255,7 @@ std::string cmNinjaTargetGenerator::GetTargetOutputDir() const
 {
   std::string dir = this->Target->GetDirectory(this->GetConfigName());
   cmSystemTools::MakeDirectory(dir.c_str());
-  return this->LocalGenerator->Convert(dir.c_str(),
-                                       cmLocalGenerator::HOME_OUTPUT,
-                                       cmLocalGenerator::MAKEFILE);
+  return ConvertToNinjaPath(dir.c_str());
 }
 
 std::string

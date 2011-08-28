@@ -72,6 +72,21 @@ protected:
 
   std::string ComputeDefines(cmSourceFile *source, const std::string& language);
 
+  std::string ConvertToNinjaPath(const char *path) const;
+
+  struct map_to_ninja_path {
+    const cmNinjaTargetGenerator *TargetGenerator;
+    map_to_ninja_path(const cmNinjaTargetGenerator *TargetGenerator)
+      : TargetGenerator(TargetGenerator) {}
+    std::string operator()(const std::string &path) {
+      return TargetGenerator->ConvertToNinjaPath(path.c_str());
+    }
+  };
+
+  map_to_ninja_path MapToNinjaPath() const {
+    return map_to_ninja_path(this);
+  }
+
   /// @return the list of link dependency for the given target @a target.
   cmNinjaDeps ComputeLinkDeps() const;
 
