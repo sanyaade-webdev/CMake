@@ -13,10 +13,10 @@
 #define cmSourceFile_h
 
 #include "cmSourceFileLocation.h"
-#include "cmCustomCommand.h"
 #include "cmPropertyMap.h"
 
 class cmake;
+class cmCustomCommand;
 
 /** \class cmSourceFile
  * \brief Represent a class loaded from a makefile.
