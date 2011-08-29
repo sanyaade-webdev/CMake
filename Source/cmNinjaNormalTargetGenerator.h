@@ -23,11 +23,14 @@ public:
   cmNinjaNormalTargetGenerator(cmTarget* target);
   ~cmNinjaNormalTargetGenerator();
 
+  void Generate();
+
 private:
   std::string LanguageLinkerRule() const;
   const char* GetVisibleTypeName() const;
-  virtual void WriteLinkRule();
-  virtual void WriteLinkStatement();
+  void WriteLanguagesRules();
+  void WriteLinkRule();
+  void WriteLinkStatement();
   std::vector<std::string> ComputeLinkCmd();
 
 private:

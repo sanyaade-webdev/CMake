@@ -35,7 +35,7 @@ public:
   /// Destructor.
   ~cmNinjaTargetGenerator();
 
-  virtual void Generate();
+  virtual void Generate() = 0;
 
 protected:
   cmGeneratedFileStream& GetBuildFileStream() const;
@@ -110,13 +110,10 @@ protected:
   void WriteTargetBuild(const std::string& outputName,
                         const std::string& outputPath);
 
-  void WriteLanguagesRules();
   void WriteLanguageRules(const std::string& language);
   void WriteCompileRule(const std::string& language);
-  virtual void WriteLinkRule() = 0;
   void WriteObjectBuildStatements();
   void WriteObjectBuildStatement(cmSourceFile* source);
-  virtual void WriteLinkStatement() = 0;
   void WriteCustomCommandBuildStatement(cmCustomCommand *cc);
   std::string ComputeLinkFlags(const std::string& linkLanguage);
 

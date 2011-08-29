@@ -48,21 +48,6 @@ cmNinjaTargetGenerator::~cmNinjaTargetGenerator()
 {
 }
 
-void cmNinjaTargetGenerator::Generate()
-{
-  // Write the rules for each language.
-  this->WriteLanguagesRules();
-
-  // Write the build statements
-  this->WriteObjectBuildStatements();
-
-  // Write the link statement.
-  this->WriteLinkStatement();
-
-  this->GetBuildFileStream() << "\n";
-  this->GetRulesFileStream() << "\n";
-}
-
 cmGeneratedFileStream& cmNinjaTargetGenerator::GetBuildFileStream() const
 {
   return *this->GetGlobalGenerator()->GetBuildFileStream();
@@ -315,25 +300,6 @@ cmNinjaTargetGenerator
 std::string cmNinjaTargetGenerator::GetTargetName() const
 {
   return this->Target->GetName();
-}
-
-void cmNinjaTargetGenerator::WriteLanguagesRules()
-{
-  cmGlobalNinjaGenerator::WriteDivider(this->GetRulesFileStream());
-  this->GetRulesFileStream()
-    << "# Rules for each languages for "
-    << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
-    << " target "
-    << this->GetTargetName()
-    << "\n\n";
-
-  std::set<cmStdString> languages;
-  this->GetTarget()->GetLanguages(languages);
-  for(std::set<cmStdString>::const_iterator l = languages.begin();
-      l != languages.end();
-      ++l)
-    this->WriteLanguageRules(*l);
-  this->WriteLinkRule();
 }
 
 void

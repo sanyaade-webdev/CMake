@@ -45,6 +45,40 @@ cmNinjaNormalTargetGenerator::~cmNinjaNormalTargetGenerator()
 {
 }
 
+void cmNinjaNormalTargetGenerator::Generate()
+{
+  // Write the rules for each language.
+  this->WriteLanguagesRules();
+
+  // Write the build statements
+  this->WriteObjectBuildStatements();
+
+  // Write the link statement.
+  this->WriteLinkStatement();
+
+  this->GetBuildFileStream() << "\n";
+  this->GetRulesFileStream() << "\n";
+}
+
+void cmNinjaNormalTargetGenerator::WriteLanguagesRules()
+{
+  cmGlobalNinjaGenerator::WriteDivider(this->GetRulesFileStream());
+  this->GetRulesFileStream()
+    << "# Rules for each languages for "
+    << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
+    << " target "
+    << this->GetTargetName()
+    << "\n\n";
+
+  std::set<cmStdString> languages;
+  this->GetTarget()->GetLanguages(languages);
+  for(std::set<cmStdString>::const_iterator l = languages.begin();
+      l != languages.end();
+      ++l)
+    this->WriteLanguageRules(*l);
+  this->WriteLinkRule();
+}
+
 const char *cmNinjaNormalTargetGenerator::GetVisibleTypeName() const {
   switch (this->GetTarget()->GetType()) {
     case cmTarget::STATIC_LIBRARY:
