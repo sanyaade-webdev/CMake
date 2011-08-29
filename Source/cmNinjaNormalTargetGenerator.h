@@ -9,8 +9,8 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
-#ifndef cmNinjaStaticLibraryTargetGenerator_h
-#  define cmNinjaStaticLibraryTargetGenerator_h
+#ifndef cmNinjaNormalTargetGenerator_h
+#  define cmNinjaNormalTargetGenerator_h
 
 #  include "cmNinjaTargetGenerator.h"
 #  include "cmNinjaTypes.h"
@@ -43,4 +43,4 @@ private:
   const char *TargetLinkLanguage;
 };
 
-#endif // ! cmNinjaStaticLibraryTargetGenerator_h
+#endif // ! cmNinjaNormalTargetGenerator_h
