@@ -14,6 +14,7 @@
 #include "cmLocalNinjaGenerator.h"
 #include "cmGeneratedFileStream.h"
 #include "cmNinjaNormalTargetGenerator.h"
+#include "cmNinjaUtilityTargetGenerator.h"
 #include "cmSystemTools.h"
 #include "cmMakefile.h"
 #include "cmComputeLinkInformation.h"
@@ -30,6 +31,19 @@ cmNinjaTargetGenerator::New(cmTarget* target)
       case cmTarget::SHARED_LIBRARY:
       case cmTarget::STATIC_LIBRARY:
         return new cmNinjaNormalTargetGenerator(target);
+
+      case cmTarget::UTILITY:
+        return new cmNinjaUtilityTargetGenerator(target);;
+
+      case cmTarget::GLOBAL_TARGET: {
+        // We only want to process global targets that live in the home
+        // (i.e. top-level) directory.  CMake creates copies of these targets
+        // in every directory, which we don't need.
+        cmMakefile *mf = target->GetMakefile();
+        if (strcmp(mf->GetStartDirectory(), mf->GetHomeDirectory()) == 0)
+          return new cmNinjaUtilityTargetGenerator(target);;
+        // else fallthrough
+      }
 
       default:
         return 0;
