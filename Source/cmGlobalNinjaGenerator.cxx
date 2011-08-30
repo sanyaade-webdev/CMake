@@ -76,15 +76,6 @@ void cmGlobalNinjaGenerator::WriteBuild(std::ostream& os,
     return;
     }
 
-  // Make sure there is at least one input file.
-  if(explicitDeps.empty() && implicitDeps.empty() && orderOnlyDeps.empty())
-    {
-    cmSystemTools::Error("No input files for WriteBuildStatement! called "
-                         "with comment: ",
-                         comment.c_str());
-    return;
-    }
-
   cmGlobalNinjaGenerator::WriteComment(os, comment);
 
   // TODO(Nicolas Despres): Write one file per line when there is multiple
