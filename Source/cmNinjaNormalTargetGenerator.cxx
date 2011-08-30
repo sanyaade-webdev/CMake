@@ -153,25 +153,13 @@ cmNinjaNormalTargetGenerator
 
     // Rule for linking library.
     std::vector<std::string> linkCmds = this->ComputeLinkCmd();
-    std::string linkCmd;
-    bool isLast = false;
-    for(std::vector<std::string>::const_iterator i = linkCmds.begin();
+    for(std::vector<std::string>::iterator i = linkCmds.begin();
         i != linkCmds.end();
         ++i)
       {
-      if(!isLast && i + 1 == linkCmds.end())
-        isLast = true;
-      std::string cmd = *i;
-      this->GetLocalGenerator()->ExpandRuleVariables(cmd, vars);
-      linkCmd += cmd;
-      // TODO(Nicolas Despres): This will work only on Unix platforms. I don't
-      // want to use a link.txt file because I will loose the benefit of the
-      // $in variables. A discussion about dealing with multiple commands in
-      // a rule is started here:
-      // http://groups.google.com/group/ninja-build/browse_thread/thread/d515f23a78986008
-      if(!isLast)
-        linkCmd += " && ";
+      this->GetLocalGenerator()->ExpandRuleVariables(*i, vars);
       }
+    std::string linkCmd = BuildCommandLine(linkCmds);
 
     // Write the linker rule.
     std::ostringstream comment;

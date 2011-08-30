@@ -110,6 +110,11 @@ protected:
   void WriteTargetBuild(const std::string& outputName,
                         const std::string& outputPath);
 
+  void AppendCustomCommandDeps(const cmCustomCommand *cc, cmNinjaDeps &ninjaDeps);
+  std::string BuildCommandLine(const std::vector<std::string> &cmdLines);
+  void AppendCustomCommandLines(const cmCustomCommand *cc, std::vector<std::string> &cmdLines);
+  void WriteCustomCommandRule();
+
   void WriteLanguageRules(const std::string& language);
   void WriteCompileRule(const std::string& language);
   void WriteObjectBuildStatements();

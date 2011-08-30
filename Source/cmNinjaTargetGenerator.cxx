@@ -473,21 +473,8 @@ cmNinjaTargetGenerator
   return linkFlags;
 }
 
-void
-cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
-  this->GetGlobalGenerator()->AddRule("CUSTOM_COMMAND",
-                                      "$COMMAND",
-                                      "Rule for running custom commands.",
-                                      "$DESC",
-                                      /*depfile*/ "",
-                                      cmNinjaVars());
-
-  const std::vector<std::string> &outputs = cc->GetOutputs();
+void cmNinjaTargetGenerator::AppendCustomCommandDeps(const cmCustomCommand *cc, cmNinjaDeps &ninjaDeps) {
   const std::vector<std::string> &deps = cc->GetDepends();
-  cmNinjaDeps ninjaOutputs(outputs.size()), ninjaDeps;
-
-  std::transform(outputs.begin(), outputs.end(),
-                 ninjaOutputs.begin(), MapToNinjaPath());
   for (std::vector<std::string>::const_iterator i = deps.begin();
        i != deps.end(); ++i) {
     std::string dep;
@@ -495,22 +482,63 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
                                                 this->GetConfigName(), dep))
       ninjaDeps.push_back(ConvertToNinjaPath(dep.c_str()));
   }
+}
 
+std::string cmNinjaTargetGenerator::BuildCommandLine(const std::vector<std::string> &cmdLines) {
+  // TODO: This will work only on Unix platforms. I don't
+  // want to use a link.txt file because I will loose the benefit of the
+  // $in variables. A discussion about dealing with multiple commands in
+  // a rule is started here:
+  // http://groups.google.com/group/ninja-build/browse_thread/thread/d515f23a78986008
   std::ostringstream cmd;
+  for (std::vector<std::string>::const_iterator li = cmdLines.begin();
+       li != cmdLines.end(); ++li) {
+    if (li != cmdLines.begin())
+      cmd << " && ";
+    cmd << *li;
+  }
+  return cmd.str();
+}
+
+void cmNinjaTargetGenerator::AppendCustomCommandLines(const cmCustomCommand *cc, std::vector<std::string> &cmdLines) {
   for (cmCustomCommandLines::const_iterator li = cc->GetCommandLines().begin();
        li != cc->GetCommandLines().end(); ++li) {
-    if (li != cc->GetCommandLines().begin())
-      cmd << " && ";
+    std::ostringstream cmd;
     for (cmCustomCommandLine::const_iterator wi = li->begin();
          wi != li->end(); ++wi) {
       if (wi != li->begin())
         cmd << " ";
       cmd << *wi;
     }
+    cmdLines.push_back(cmd.str());
   }
+}
+
+void cmNinjaTargetGenerator::WriteCustomCommandRule() {
+  this->GetGlobalGenerator()->AddRule("CUSTOM_COMMAND",
+                                      "$COMMAND",
+                                      "Rule for running custom commands.",
+                                      "$DESC",
+                                      /*depfile*/ "",
+                                      cmNinjaVars());
+}
+
+void
+cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
+  this->WriteCustomCommandRule();
+
+  const std::vector<std::string> &outputs = cc->GetOutputs();
+  cmNinjaDeps ninjaOutputs(outputs.size()), ninjaDeps;
+
+  std::transform(outputs.begin(), outputs.end(),
+                 ninjaOutputs.begin(), MapToNinjaPath());
+  this->AppendCustomCommandDeps(cc, ninjaDeps);
+
+  std::vector<std::string> cmdLines;
+  this->AppendCustomCommandLines(cc, cmdLines);
 
   cmNinjaVars vars;
-  vars["COMMAND"] = cmd.str();
+  vars["COMMAND"] = this->BuildCommandLine(cmdLines);
   vars["DESC"] = this->LocalGenerator->ConstructComment(*cc);
 
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
