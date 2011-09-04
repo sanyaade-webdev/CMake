@@ -121,6 +121,14 @@ public:
                            const std::string& filename,
                            const std::string& comment = "");
 
+  /**
+   * Write a default target statement specifying @a targets as
+   * the default targets.
+   */
+  static void WriteDefault(std::ostream& os,
+                           const cmNinjaDeps& targets,
+                           const std::string& comment = "");
+
 public:
   /// Default constructor.
   cmGlobalNinjaGenerator();

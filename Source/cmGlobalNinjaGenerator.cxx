@@ -242,6 +242,17 @@ void cmGlobalNinjaGenerator::WriteInclude(std::ostream& os,
   os << "include " << filename << "\n";
 }
 
+void cmGlobalNinjaGenerator::WriteDefault(std::ostream& os,
+                                          const cmNinjaDeps& targets,
+                                          const std::string& comment)
+{
+  cmGlobalNinjaGenerator::WriteComment(os, comment);
+  os << "default";
+  for(cmNinjaDeps::const_iterator i = targets.begin(); i != targets.end(); ++i)
+    os << " " << *i;
+  os << "\n";
+}
+
 
 cmGlobalNinjaGenerator::cmGlobalNinjaGenerator()
   : cmGlobalGenerator()
@@ -524,4 +535,8 @@ void cmGlobalNinjaGenerator::WriteTargetAll(std::ostream& os)
                                           emptyDeps,
                                           this->AllDependencies,
                                           emptyVars);
+
+  cmGlobalNinjaGenerator::WriteDefault(os,
+                                       outputs,
+                                       "Make the all target the default.");
 }
