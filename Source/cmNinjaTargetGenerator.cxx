@@ -19,6 +19,7 @@
 #include "cmMakefile.h"
 #include "cmComputeLinkInformation.h"
 #include "cmSourceFile.h"
+#include "cmCustomCommandGenerator.h"
 
 #include <algorithm>
 
@@ -515,16 +516,11 @@ std::string cmNinjaTargetGenerator::BuildCommandLine(const std::vector<std::stri
 }
 
 void cmNinjaTargetGenerator::AppendCustomCommandLines(const cmCustomCommand *cc, std::vector<std::string> &cmdLines) {
-  for (cmCustomCommandLines::const_iterator li = cc->GetCommandLines().begin();
-       li != cc->GetCommandLines().end(); ++li) {
-    std::ostringstream cmd;
-    for (cmCustomCommandLine::const_iterator wi = li->begin();
-         wi != li->end(); ++wi) {
-      if (wi != li->begin())
-        cmd << " ";
-      cmd << *wi;
-    }
-    cmdLines.push_back(cmd.str());
+  cmCustomCommandGenerator ccg(*cc, this->GetConfigName(), this->Makefile);
+  for (unsigned i = 0; i != ccg.GetNumberOfCommands(); ++i) {
+    cmdLines.push_back(ccg.GetCommand(i));
+    std::string& cmd = cmdLines.back();
+    ccg.AppendArguments(i, cmd);
   }
 }
 
