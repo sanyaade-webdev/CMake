@@ -214,6 +214,9 @@ private:
   // In order to access the AddDependencyToAll() functions and co.
   friend class cmLocalNinjaGenerator;
 
+  // In order to access the SeenCustomCommand() function.
+  friend class cmNinjaTargetGenerator;
+
 private:
   void OpenBuildFileStream();
   void CloseBuildFileStream();
@@ -228,6 +231,11 @@ private:
 
   void WriteBuiltinTargets(std::ostream& os);
   void WriteTargetAll(std::ostream& os);
+
+  /// Return true if the global generator has seen the given custom command.
+  bool SeenCustomCommand(cmCustomCommand *cc) {
+    return !this->CustomCommands.insert(cc).second;
+  }
 
 private:
   /// The file containing the build statement. (the relation ship of the
@@ -246,6 +254,9 @@ private:
 
   /// The set of dependencies to add to the "all" target.
   cmNinjaDeps AllDependencies;
+
+  /// The set of custom commands we have seen.
+  std::set<cmCustomCommand *> CustomCommands;
 };
 
 #endif // ! cmGlobalNinjaGenerator_h

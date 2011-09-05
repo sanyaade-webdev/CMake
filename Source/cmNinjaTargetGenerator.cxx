@@ -542,6 +542,9 @@ void cmNinjaTargetGenerator::WriteCustomCommandRule() {
 
 void
 cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
+  if (this->GetGlobalGenerator()->SeenCustomCommand(cc))
+    return;
+
   this->WriteCustomCommandRule();
 
   const std::vector<std::string> &outputs = cc->GetOutputs();
