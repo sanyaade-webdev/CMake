@@ -231,6 +231,7 @@ private:
 
   void WriteBuiltinTargets(std::ostream& os);
   void WriteTargetAll(std::ostream& os);
+  void WriteTargetRebuildManifest(std::ostream& os);
 
   /// Return true if the global generator has seen the given custom command.
   bool SeenCustomCommand(cmCustomCommand *cc) {

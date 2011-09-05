@@ -518,6 +518,7 @@ void cmGlobalNinjaGenerator::WriteBuiltinTargets(std::ostream& os)
   os << "# Built-in targets\n\n";
 
   this->WriteTargetAll(os);
+  this->WriteTargetRebuildManifest(os);
 }
 
 void cmGlobalNinjaGenerator::WriteTargetAll(std::ostream& os)
@@ -539,4 +540,41 @@ void cmGlobalNinjaGenerator::WriteTargetAll(std::ostream& os)
   cmGlobalNinjaGenerator::WriteDefault(os,
                                        outputs,
                                        "Make the all target the default.");
+}
+
+void cmGlobalNinjaGenerator::WriteTargetRebuildManifest(std::ostream& os)
+{
+  cmMakefile* mfRoot = this->LocalGenerators[0]->GetMakefile();
+
+  std::ostringstream cmd;
+  cmd << mfRoot->GetRequiredDefinition("CMAKE_COMMAND")
+      << " -H" << mfRoot->GetHomeDirectory()
+      << " -B" << mfRoot->GetHomeOutputDirectory();
+  WriteRule(*this->RulesFileStream,
+            "RERUN_CMAKE",
+            cmd.str(),
+            "Rule for re-running cmake.",
+            "Re-running CMake...",
+            "",
+            cmNinjaVars());
+
+  cmNinjaDeps implicitDeps;
+  for (std::vector<cmLocalGenerator *>::const_iterator i =
+       this->LocalGenerators.begin(); i != this->LocalGenerators.end(); ++i) {
+    const std::vector<std::string>& lf = (*i)->GetMakefile()->GetListFiles();
+    implicitDeps.insert(implicitDeps.end(), lf.begin(), lf.end());
+  }
+  std::sort(implicitDeps.begin(), implicitDeps.end());
+  implicitDeps.erase(std::unique(implicitDeps.begin(), implicitDeps.end()),
+                     implicitDeps.end());
+  implicitDeps.push_back("CMakeCache.txt");
+
+  WriteBuild(os,
+             "Re-run CMake if any of its inputs changed.",
+             "RERUN_CMAKE",
+             /*outputs=*/ cmNinjaDeps(1, "build.ninja"),
+             /*explicitDeps=*/ cmNinjaDeps(),
+             implicitDeps,
+             /*orderOnlyDeps=*/ cmNinjaDeps(),
+             /*variables=*/ cmNinjaVars());
 }
