@@ -422,6 +422,13 @@ cmNinjaTargetGenerator
   std::set<cmStdString> const& utils = this->Target->GetUtilities();
   implicitDeps.insert(implicitDeps.end(), utils.begin(), utils.end());
 
+  if(const char* objectDeps = source->GetProperty("OBJECT_DEPENDS")) {
+    std::vector<std::string> depList;
+    cmSystemTools::ExpandListArgument(objectDeps, depList);
+    std::transform(depList.begin(), depList.end(),
+                   std::back_inserter(implicitDeps), MapToNinjaPath());
+  }
+
   const char* linkLanguage =
     this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
 
