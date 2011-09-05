@@ -148,7 +148,7 @@ public:
     return cmGlobalNinjaGenerator::GetActualName(); }
 
   /// @return the name of this generator.
-  static const char* GetActualName() { return "Ninja (Experimental)"; }
+  static const char* GetActualName() { return "Ninja"; }
 
   /// Overloaded methods. @see cmGlobalGenerator::GetDocumentation()
   virtual void GetDocumentation(cmDocumentationEntry& entry) const;

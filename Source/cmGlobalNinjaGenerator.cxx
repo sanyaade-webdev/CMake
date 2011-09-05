@@ -280,9 +280,9 @@ void cmGlobalNinjaGenerator
 ::GetDocumentation(cmDocumentationEntry& entry) const
 {
   entry.Name = this->GetName();
-  entry.Brief = "Generates build.ninja files.";
+  entry.Brief = "Generates build.ninja files (experimental).";
   entry.Full =
-    "A hierarchy of build.ninja files is generated into the build tree. Any"
+    "A build.ninja file is generated into the build tree. Any"
     "version of the ninja program can build the project through the "
     "\"all\" target.  An \"install\" target is also provided.";
 }
