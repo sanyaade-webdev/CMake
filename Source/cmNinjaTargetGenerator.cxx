@@ -339,7 +339,7 @@ cmNinjaTargetGenerator
   vars.Source = "$in";
   vars.Object = "$out";
 
-  vars.Flags = "$FLAGS";
+  vars.Flags = "-MMD -MF $out.d $FLAGS";
   vars.Defines = "$DEFINES";
 
   // Rule for compiling object file.
@@ -356,7 +356,7 @@ cmNinjaTargetGenerator
   comment << "Rule for compiling " << language << " files.";
   std::ostringstream description;
   description << "Building " << language << " object $out";
-  std::string depfile = "";
+  std::string depfile = "$out.d";
   cmNinjaVars emptyVars;
   this->GetGlobalGenerator()->AddRule(this->LanguageCompilerRule(language),
                                       compileCmd,
