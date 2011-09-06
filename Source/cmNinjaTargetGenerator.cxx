@@ -545,8 +545,6 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
   if (this->GetGlobalGenerator()->SeenCustomCommand(cc))
     return;
 
-  this->WriteCustomCommandRule();
-
   const std::vector<std::string> &outputs = cc->GetOutputs();
   cmNinjaDeps ninjaOutputs(outputs.size()), ninjaDeps;
 
@@ -557,16 +555,29 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
   std::vector<std::string> cmdLines;
   this->AppendCustomCommandLines(cc, cmdLines);
 
-  cmNinjaVars vars;
-  vars["COMMAND"] = this->BuildCommandLine(cmdLines);
-  vars["DESC"] = this->LocalGenerator->ConstructComment(*cc);
+  if (cmdLines.empty()) {
+    cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
+                                            "Phony custom command for " +
+                                              ninjaOutputs[0],
+                                            ninjaOutputs,
+                                            ninjaDeps,
+                                            cmNinjaDeps(),
+                                            cmNinjaDeps(),
+                                            cmNinjaVars());
+  } else {
+    this->WriteCustomCommandRule();
 
-  cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
-                                     "Custom command for " + ninjaOutputs[0],
-                                     "CUSTOM_COMMAND",
-                                     ninjaOutputs,
-                                     ninjaDeps,
-                                     cmNinjaDeps(),
-                                     cmNinjaDeps(),
-                                     vars);
+    cmNinjaVars vars;
+    vars["COMMAND"] = this->BuildCommandLine(cmdLines);
+    vars["DESC"] = this->LocalGenerator->ConstructComment(*cc);
+
+    cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
+                                       "Custom command for " + ninjaOutputs[0],
+                                       "CUSTOM_COMMAND",
+                                       ninjaOutputs,
+                                       ninjaDeps,
+                                       cmNinjaDeps(),
+                                       cmNinjaDeps(),
+                                       vars);
+  }
 }
