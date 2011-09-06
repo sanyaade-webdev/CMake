@@ -379,7 +379,10 @@ cmNinjaTargetGenerator
   vars.Source = "$in";
   vars.Object = "$out";
 
-  vars.Flags = "-MMD -MF $out.d $FLAGS";
+  if (this->GetTargetName() == "cmTryCompileExec")
+    vars.Flags = "$FLAGS";
+  else
+    vars.Flags = "-MMD -MF $out.d $FLAGS";
   vars.Defines = "$DEFINES";
 
   // Rule for compiling object file.
