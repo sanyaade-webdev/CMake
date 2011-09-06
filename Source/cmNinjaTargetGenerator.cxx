@@ -567,6 +567,14 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
   } else {
     this->WriteCustomCommandRule();
 
+    std::ostringstream cdCmd;
+    cdCmd << "cd ";
+    if (const char* wd = cc->GetWorkingDirectory())
+      cdCmd << wd;
+    else
+      cdCmd << this->GetMakefile()->GetStartOutputDirectory();
+    cmdLines.insert(cmdLines.begin(), cdCmd.str());
+
     cmNinjaVars vars;
     vars["COMMAND"] = this->BuildCommandLine(cmdLines);
     vars["DESC"] = this->LocalGenerator->ConstructComment(*cc);
