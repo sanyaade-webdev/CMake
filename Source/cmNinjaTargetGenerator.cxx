@@ -324,9 +324,9 @@ cmNinjaTargetGenerator
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
                                             comment,
                                             outputs,
-                                            emptyDeps,
-                                            emptyDeps,
                                             deps,
+                                            emptyDeps,
+                                            emptyDeps,
                                             emptyVars);
     }
 
@@ -341,9 +341,9 @@ cmNinjaTargetGenerator
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
                                             comment,
                                             outputs,
-                                            emptyDeps,
-                                            emptyDeps,
                                             deps,
+                                            emptyDeps,
+                                            emptyDeps,
                                             emptyVars);
     }
 }

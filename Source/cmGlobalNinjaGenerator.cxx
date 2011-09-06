@@ -532,9 +532,9 @@ void cmGlobalNinjaGenerator::WriteTargetAll(std::ostream& os)
   cmGlobalNinjaGenerator::WritePhonyBuild(os,
                                           "The main all target.",
                                           outputs,
-                                          emptyDeps,
-                                          emptyDeps,
                                           this->AllDependencies,
+                                          emptyDeps,
+                                          emptyDeps,
                                           emptyVars);
 
   cmGlobalNinjaGenerator::WriteDefault(os,
