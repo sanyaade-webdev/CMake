@@ -577,4 +577,12 @@ void cmGlobalNinjaGenerator::WriteTargetRebuildManifest(std::ostream& os)
              implicitDeps,
              /*orderOnlyDeps=*/ cmNinjaDeps(),
              /*variables=*/ cmNinjaVars());
+
+  WritePhonyBuild(os,
+                  "A missing CMake input file is not an error.",
+                  implicitDeps,
+                  cmNinjaDeps(),
+                  cmNinjaDeps(),
+                  cmNinjaDeps(),
+                  cmNinjaVars());
 }
