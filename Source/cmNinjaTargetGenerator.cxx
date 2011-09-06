@@ -272,6 +272,42 @@ cmNinjaTargetGenerator
 
 void
 cmNinjaTargetGenerator
+::AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) const {
+  switch (target->GetType()) {
+  case cmTarget::EXECUTABLE:
+  case cmTarget::SHARED_LIBRARY:
+  case cmTarget::STATIC_LIBRARY: {
+    std::string name = target->GetFullName(this->GetConfigName());
+    std::string dir = target->GetDirectory(this->GetConfigName());
+    std::string path = ConvertToNinjaPath(dir.c_str());
+    if (path.empty() || path == ".")
+      outputs.push_back(name);
+    else {
+      path += "/";
+      path += name;
+      outputs.push_back(path);
+    }
+    break;
+  }
+
+  case cmTarget::UTILITY: {
+    const std::vector<cmSourceFile*>& sources = target->GetSourceFiles();
+    for(std::vector<cmSourceFile*>::const_iterator source = sources.begin();
+        source != sources.end(); ++source) {
+      if(cmCustomCommand* cc = (*source)->GetCustomCommand()) {
+        if (!cc->GetCommandLines().empty()) {
+          const std::vector<std::string>& ccoutputs = cc->GetOutputs();
+          std::transform(ccoutputs.begin(), ccoutputs.end(),
+                         std::back_inserter(outputs), MapToNinjaPath());
+        }
+      }
+    }
+  }
+  }
+}
+
+void
+cmNinjaTargetGenerator
 ::WriteTargetBuild(const std::string& outputName,
                    const std::string& outputPath)
 {
@@ -416,17 +452,22 @@ cmNinjaTargetGenerator
   std::string sourceFileName = this->GetSourceFilePath(source);
   explicitDeps.push_back(sourceFileName);
 
-  // Ensure that the utilities for this target are built before any source file
-  // in the target.
-  cmNinjaDeps implicitDeps;
-  std::set<cmStdString> const& utils = this->Target->GetUtilities();
-  implicitDeps.insert(implicitDeps.end(), utils.begin(), utils.end());
+  // Ensure that the target dependencies are built before any source file in the
+  // target, using order-only dependencies.  These dependencies should later
+  // resolve to direct header dependencies in the depfile.
+  cmNinjaDeps orderOnlyDeps;
+  cmTargetDependSet const& targetDeps =
+    this->GetGlobalGenerator()->GetTargetDirectDepends(*this->Target);
+  for (cmTargetDependSet::const_iterator i = targetDeps.begin();
+       i != targetDeps.end(); ++i) {
+    this->AppendTargetOutputs(*i, orderOnlyDeps);
+  }
 
   if(const char* objectDeps = source->GetProperty("OBJECT_DEPENDS")) {
     std::vector<std::string> depList;
     cmSystemTools::ExpandListArgument(objectDeps, depList);
     std::transform(depList.begin(), depList.end(),
-                   std::back_inserter(implicitDeps), MapToNinjaPath());
+                   std::back_inserter(orderOnlyDeps), MapToNinjaPath());
   }
 
   const char* linkLanguage =
@@ -441,8 +482,8 @@ cmNinjaTargetGenerator
                                      rule,
                                      outputs,
                                      explicitDeps,
-                                     implicitDeps,
                                      emptyDeps,
+                                     orderOnlyDeps,
                                      vars);
 }
 

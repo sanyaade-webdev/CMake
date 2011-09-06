@@ -103,6 +103,8 @@ protected:
   /// @return the output path for the target.
   virtual std::string GetTargetOutputDir() const;
 
+  void AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) const;
+
   /**
    * Write shortcut build statements for the target name with the target
    * output name and the target output path.
