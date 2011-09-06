@@ -222,6 +222,10 @@ std::string cmNinjaTargetGenerator::ConvertToNinjaPath(const char *path) const
 
 cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
 {
+  // Static libraries never depend on anything for linking.
+  if (this->Target->GetType() == cmTarget::STATIC_LIBRARY)
+    return cmNinjaDeps();
+
   cmComputeLinkInformation* cli =
     this->Target->GetLinkInformation(this->GetConfigName());
   if(!cli)
