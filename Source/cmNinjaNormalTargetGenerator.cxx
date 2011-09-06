@@ -122,6 +122,7 @@ cmNinjaNormalTargetGenerator
                                                 cmLocalGenerator::SHELL);
     vars.ObjectDir = objdir.c_str();
     vars.Target = "$out";
+    vars.TargetSOName = "$SONAME";
 
     // Setup the target version.
     std::string targetVersionMajor;
