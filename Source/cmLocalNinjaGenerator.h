@@ -73,6 +73,7 @@ protected:
   virtual bool CheckDefinition(std::string const& define) const;
 
   virtual std::string ConvertToLinkReference(std::string const& lib);
+  virtual std::string ConvertToIncludeReference(std::string const& path);
 
 private:
   // In order to access to protected member of the local generator.

@@ -152,6 +152,12 @@ std::string cmLocalNinjaGenerator::ConvertToLinkReference(std::string const& lib
   return this->Convert(lib.c_str(), HOME_OUTPUT, SHELL);
 }
 
+std::string
+cmLocalNinjaGenerator::ConvertToIncludeReference(std::string const& path)
+{
+  return this->Convert(path.c_str(), HOME_OUTPUT, SHELL);
+}
+
 //----------------------------------------------------------------------------
 // Private methods.
 
