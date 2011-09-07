@@ -477,6 +477,22 @@ cmNinjaTargetGenerator
                    std::back_inserter(orderOnlyDeps), MapToNinjaPath());
   }
 
+  // Add order-only dependency on any header file with a custom command.
+  {
+    const std::vector<cmSourceFile*>& sources =
+      this->GetTarget()->GetSourceFiles();
+    for(std::vector<cmSourceFile*>::const_iterator si = sources.begin();
+        si != sources.end(); ++si) {
+      if (!(*si)->GetLanguage()) {
+        if (cmCustomCommand* cc = (*si)->GetCustomCommand()) {
+          const std::vector<std::string>& ccoutputs = cc->GetOutputs();
+          std::transform(ccoutputs.begin(), ccoutputs.end(),
+                         std::back_inserter(orderOnlyDeps), MapToNinjaPath());
+        }
+      }
+    }
+  }
+
   cmNinjaVars vars;
   vars["FLAGS"] = this->ComputeFlagsForObject(source, language);
   vars["DEFINES"] = this->ComputeDefines(source, language);
