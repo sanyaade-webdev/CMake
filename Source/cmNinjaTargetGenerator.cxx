@@ -477,12 +477,9 @@ cmNinjaTargetGenerator
                    std::back_inserter(orderOnlyDeps), MapToNinjaPath());
   }
 
-  const char* linkLanguage =
-    this->GetTarget()->GetLinkerLanguage(this->GetConfigName());
-
   cmNinjaVars vars;
-  vars["FLAGS"] = this->ComputeFlagsForObject(source, linkLanguage);
-  vars["DEFINES"] = this->ComputeDefines(source, linkLanguage);
+  vars["FLAGS"] = this->ComputeFlagsForObject(source, language);
+  vars["DEFINES"] = this->ComputeDefines(source, language);
 
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                      comment,
