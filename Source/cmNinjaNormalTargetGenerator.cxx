@@ -332,7 +332,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
                                          cmNinjaVars());
     } else {
       cmNinjaVars symlinkVars;
-      symlinkVars["SONAME"] = this->TargetNameSO;
+      symlinkVars["SONAME"] = this->GetTargetFilePath(this->TargetNameSO);
       cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                          "Create library symlink " + targetOutput,
                                          "CMAKE_SYMLINK_LIBRARY",
