@@ -86,13 +86,24 @@ void cmNinjaUtilityTargetGenerator::Generate() {
     if (vars["COMMAND"].find('$') != std::string::npos)
       return;
 
+    std::string utilCommandName = cmake::GetCMakeFilesDirectoryPostSlash();
+    utilCommandName += this->GetTargetName() + ".util";
+
     cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                        "Utility command for " + this->GetTargetName(),
                                        "CUSTOM_COMMAND",
-                                       cmNinjaDeps(1, this->GetTargetName()),
+                                       cmNinjaDeps(1, utilCommandName),
                                        deps,
                                        cmNinjaDeps(),
                                        cmNinjaDeps(),
                                        vars);
+
+    cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
+                                            "",
+                                            cmNinjaDeps(1, this->GetTargetName()),
+                                            cmNinjaDeps(1, utilCommandName),
+                                            cmNinjaDeps(),
+                                            cmNinjaDeps(),
+                                            cmNinjaVars());
   }
 }
