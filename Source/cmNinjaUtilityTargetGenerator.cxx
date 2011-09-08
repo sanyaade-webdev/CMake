@@ -2,6 +2,7 @@
 #include "cmCustomCommand.h"
 #include "cmGeneratedFileStream.h"
 #include "cmGlobalNinjaGenerator.h"
+#include "cmMakefile.h"
 #include "cmSourceFile.h"
 #include "cmTarget.h"
 
@@ -9,6 +10,15 @@ cmNinjaUtilityTargetGenerator::cmNinjaUtilityTargetGenerator(cmTarget *target)
   : cmNinjaTargetGenerator(target) {}
 
 cmNinjaUtilityTargetGenerator::~cmNinjaUtilityTargetGenerator() {}
+
+static void find_replace(std::string &str, const std::string &find,
+                         const std::string &replace) {
+  std::string::size_type pos = 0;
+  while ((pos = str.find(find, pos)) != std::string::npos) {
+    str.replace(pos, find.size(), replace);
+    pos += replace.size();
+  }
+}
 
 void cmNinjaUtilityTargetGenerator::Generate() {
   std::vector<std::string> commands;
@@ -65,8 +75,14 @@ void cmNinjaUtilityTargetGenerator::Generate() {
     else
       vars["DESC"] = "Running utility command for " + this->GetTargetName();
 
-    // TODO: fix problematic global targets.  For now, filter out anything
-    // with a '$' in the command.
+    // TODO: fix problematic global targets.  For now, search and replace the
+    // makefile vars.
+    find_replace(vars["COMMAND"], "$(CMAKE_SOURCE_DIR)",
+                 this->GetTarget()->GetMakefile()->GetHomeDirectory());
+    find_replace(vars["COMMAND"], "$(CMAKE_BINARY_DIR)",
+                 this->GetTarget()->GetMakefile()->GetHomeOutputDirectory());
+    find_replace(vars["COMMAND"], "$(ARGS)", "");
+
     if (vars["COMMAND"].find('$') != std::string::npos)
       return;
 
