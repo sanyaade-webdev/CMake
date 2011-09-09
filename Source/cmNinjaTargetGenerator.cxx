@@ -578,6 +578,12 @@ void cmNinjaTargetGenerator::AppendCustomCommandDeps(const cmCustomCommand *cc, 
 }
 
 std::string cmNinjaTargetGenerator::BuildCommandLine(const std::vector<std::string> &cmdLines) {
+  // If we have no commands but we need to build a command anyway, use "true".
+  // This happens when building a POST_BUILD value for link targets that
+  // don't use POST_BUILD.
+  if (cmdLines.empty())
+    return "true";
+
   // TODO: This will work only on Unix platforms. I don't
   // want to use a link.txt file because I will loose the benefit of the
   // $in variables. A discussion about dealing with multiple commands in

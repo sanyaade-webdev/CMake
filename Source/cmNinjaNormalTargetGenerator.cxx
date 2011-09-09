@@ -160,6 +160,7 @@ cmNinjaNormalTargetGenerator
       {
       this->GetLocalGenerator()->ExpandRuleVariables(*i, vars);
       }
+    linkCmds.push_back("$POST_BUILD");
     std::string linkCmd = BuildCommandLine(linkCmds);
 
     // Write the linker rule.
@@ -309,6 +310,15 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
                                                   this->TargetLinkLanguage,
                                                   this->GetConfigName());
   vars["SONAME"] = this->TargetNameSO;
+
+  std::vector<cmCustomCommand> &postBuildCmds =
+    this->GetTarget()->GetPostBuildCommands();
+  std::vector<std::string> postBuildCmdLines;
+  for (std::vector<cmCustomCommand>::const_iterator ci = postBuildCmds.begin();
+       ci != postBuildCmds.end(); ++ci) {
+    this->AppendCustomCommandLines(&*ci, postBuildCmdLines);
+  }
+  vars["POST_BUILD"] = this->BuildCommandLine(postBuildCmdLines);
 
   // Write the build statement for this target.
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
