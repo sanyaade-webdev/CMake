@@ -292,8 +292,6 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
   // Compute outputs.
   cmNinjaDeps outputs;
   outputs.push_back(targetOutputReal);
-  // Add this executable to the all target.
-  this->GetLocalGenerator()->AddDependencyToAll(this->GetTargetName());
 
   // Compute specific libraries to link with.
   cmNinjaDeps explicitDeps = this->GetObjects(),

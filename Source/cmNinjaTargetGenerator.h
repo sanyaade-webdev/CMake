@@ -37,14 +37,14 @@ public:
 
   virtual void Generate() = 0;
 
+  std::string GetTargetName() const;
+
 protected:
   cmGeneratedFileStream& GetBuildFileStream() const;
   cmGeneratedFileStream& GetRulesFileStream() const;
 
   cmTarget* GetTarget() const
   { return this->Target; }
-
-  std::string GetTargetName() const;
 
   cmLocalNinjaGenerator* GetLocalGenerator() const
   { return this->LocalGenerator; }
