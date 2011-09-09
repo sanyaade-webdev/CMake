@@ -229,13 +229,38 @@ private:
 
   void AddDependencyToAll(const std::string& dependency);
 
+  void WriteAssumedSourceDependencies(std::ostream& os);
   void WriteBuiltinTargets(std::ostream& os);
   void WriteTargetAll(std::ostream& os);
   void WriteTargetRebuildManifest(std::ostream& os);
 
-  /// Return true if the global generator has seen the given custom command.
+  /// Called when we have seen the given custom command.  Returns true
+  /// if we has seen it before.
   bool SeenCustomCommand(cmCustomCommand *cc) {
     return !this->CustomCommands.insert(cc).second;
+  }
+
+  /// Called when we have seen the given custom command output.
+  void SeenCustomCommandOutput(const std::string &output) {
+    this->CustomCommandOutputs.insert(output);
+    // We don't need the assumed dependencies anymore, because we have
+    // an output.
+    this->AssumedSourceDependencies.erase(output);
+  }
+
+  bool HasCustomCommandOutput(const std::string &output) {
+    return this->CustomCommandOutputs.find(output) !=
+           this->CustomCommandOutputs.end();
+  }
+
+
+  void AddAssumedSourceDependencies(const std::string &source,
+                                    const cmNinjaDeps &deps) {
+    std::set<std::string> &ASD = this->AssumedSourceDependencies[source];
+    // Because we may see the same source file multiple times (same source
+    // specified in multiple targets), compute the union of any assumed
+    // dependencies.
+    ASD.insert(deps.begin(), deps.end());
   }
 
 private:
@@ -258,6 +283,12 @@ private:
 
   /// The set of custom commands we have seen.
   std::set<cmCustomCommand *> CustomCommands;
+
+  /// The set of custom command outputs we have seen.
+  std::set<std::string> CustomCommandOutputs;
+
+  /// The mapping from source file to assumed dependencies.
+  std::map<std::string, std::set<std::string> > AssumedSourceDependencies;
 };
 
 #endif // ! cmGlobalNinjaGenerator_h

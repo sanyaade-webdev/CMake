@@ -493,6 +493,16 @@ cmNinjaTargetGenerator
     }
   }
 
+  // If the source file is GENERATED and does not have a custom command
+  // (either attached to this source file or another one), assume that one of
+  // the target dependencies, OBJECT_DEPENDS or header file custom commands
+  // will rebuild the file.
+  if (source->GetPropertyAsBool("GENERATED") && !source->GetCustomCommand() &&
+      !this->GetGlobalGenerator()->HasCustomCommandOutput(sourceFileName)) {
+    this->GetGlobalGenerator()->AddAssumedSourceDependencies(sourceFileName,
+                                                             orderOnlyDeps);
+  }
+  
   cmNinjaVars vars;
   vars["FLAGS"] = this->ComputeFlagsForObject(source, language);
   vars["DEFINES"] = this->ComputeDefines(source, language);
@@ -612,6 +622,10 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
   std::transform(outputs.begin(), outputs.end(),
                  ninjaOutputs.begin(), MapToNinjaPath());
   this->AppendCustomCommandDeps(cc, ninjaDeps);
+
+  for (cmNinjaDeps::iterator i = ninjaOutputs.begin(); i != ninjaOutputs.end();
+       ++i)
+    this->GetGlobalGenerator()->SeenCustomCommandOutput(*i);
 
   std::vector<std::string> cmdLines;
   this->AppendCustomCommandLines(cc, cmdLines);

@@ -298,6 +298,7 @@ void cmGlobalNinjaGenerator::Generate()
 
   this->cmGlobalGenerator::Generate();
 
+  this->WriteAssumedSourceDependencies(*this->BuildFileStream);
   this->WriteBuiltinTargets(*this->BuildFileStream);
 
   this->CloseRulesFileStream();
@@ -509,6 +510,21 @@ void cmGlobalNinjaGenerator::WriteDisclaimer(std::ostream& os)
 void cmGlobalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
 {
   this->AllDependencies.push_back(dependency);
+}
+
+void cmGlobalNinjaGenerator::WriteAssumedSourceDependencies(std::ostream& os)
+{
+  for (std::map<std::string, std::set<std::string> >::iterator
+       i = this->AssumedSourceDependencies.begin();
+       i != this->AssumedSourceDependencies.end(); ++i) {
+    WritePhonyBuild(os,
+                    "Assume dependencies for generated source file.",
+                    cmNinjaDeps(1, i->first),
+                    cmNinjaDeps(),
+                    cmNinjaDeps(),
+                    cmNinjaDeps(i->second.begin(), i->second.end()),
+                    cmNinjaVars());
+  }
 }
 
 void cmGlobalNinjaGenerator::WriteBuiltinTargets(std::ostream& os)
