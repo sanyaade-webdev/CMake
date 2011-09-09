@@ -595,6 +595,15 @@ std::string cmNinjaTargetGenerator::BuildCommandLine(const std::vector<std::stri
 
 void cmNinjaTargetGenerator::AppendCustomCommandLines(const cmCustomCommand *cc, std::vector<std::string> &cmdLines) {
   cmCustomCommandGenerator ccg(*cc, this->GetConfigName(), this->Makefile);
+  if (ccg.GetNumberOfCommands() > 0) {
+    std::ostringstream cdCmd;
+    cdCmd << "cd ";
+    if (const char* wd = cc->GetWorkingDirectory())
+      cdCmd << wd;
+    else
+      cdCmd << this->GetMakefile()->GetStartOutputDirectory();
+    cmdLines.push_back(cdCmd.str());
+  }
   for (unsigned i = 0; i != ccg.GetNumberOfCommands(); ++i) {
     cmdLines.push_back(ccg.GetCommand(i));
     std::string& cmd = cmdLines.back();
@@ -641,14 +650,6 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
                                             cmNinjaVars());
   } else {
     this->WriteCustomCommandRule();
-
-    std::ostringstream cdCmd;
-    cdCmd << "cd ";
-    if (const char* wd = cc->GetWorkingDirectory())
-      cdCmd << wd;
-    else
-      cdCmd << this->GetMakefile()->GetStartOutputDirectory();
-    cmdLines.insert(cmdLines.begin(), cdCmd.str());
 
     cmNinjaVars vars;
     vars["COMMAND"] = this->BuildCommandLine(cmdLines);
