@@ -56,6 +56,8 @@ public:
   /// Write a divider in the given output stream @a os.
   static void WriteDivider(std::ostream& os);
 
+  static std::string EncodeIdent(const std::string &ident, std::ostream &vars);
+
   /**
    * Write the given @a comment to the output stream @a os. It
    * handles new line character properly.

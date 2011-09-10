@@ -49,6 +49,28 @@ void cmGlobalNinjaGenerator::WriteComment(std::ostream& os,
   os << "# " << replace.substr(lpos) << "\n";
 }
 
+static bool IsIdentChar(char c) {
+  return
+    ('a' <= c && c <= 'z') ||
+    ('+' <= c && c <= '9') ||  // +,-./ and numbers
+    ('A' <= c && c <= 'Z') ||
+    (c == '_') || (c == '$') || (c == '\\');
+}
+
+std::string cmGlobalNinjaGenerator::EncodeIdent(const std::string &ident,
+                                                std::ostream &vars) {
+  if (std::find_if(ident.begin(), ident.end(),
+                   std::not1(std::ptr_fun(IsIdentChar))) != ident.end()) {
+    static unsigned VarNum = 0;
+    std::ostringstream names;
+    names << "ident" << VarNum++;
+    vars << names.str() << " = " << ident << "\n";
+    return "$" + names.str();
+  } else {
+    return ident;
+  }
+}
+
 void cmGlobalNinjaGenerator::WriteBuild(std::ostream& os,
                                         const std::string& comment,
                                         const std::string& rule,
@@ -78,47 +100,51 @@ void cmGlobalNinjaGenerator::WriteBuild(std::ostream& os,
 
   cmGlobalNinjaGenerator::WriteComment(os, comment);
 
+  std::ostringstream builds;
+
   // TODO(Nicolas Despres): Write one file per line when there is multiple
   // input/output files.
 
   // Write outputs files.
-  os << "build";
+  builds << "build";
   for(cmNinjaDeps::const_iterator i = outputs.begin();
       i != outputs.end();
       ++i)
-    os << " " << *i;
-  os << ":";
+    builds << " " << EncodeIdent(*i, os);
+  builds << ":";
 
   // Write the rule.
-  os << " " << rule;
+  builds << " " << rule;
 
   // Write explicit dependencies.
   for(cmNinjaDeps::const_iterator i = explicitDeps.begin();
       i != explicitDeps.end();
       ++i)
-    os  << " " << *i;
+    builds  << " " << EncodeIdent(*i, os);
 
   // Write implicit dependencies.
   if(!implicitDeps.empty())
     {
-    os << " |";
+    builds << " |";
     for(cmNinjaDeps::const_iterator i = implicitDeps.begin();
         i != implicitDeps.end();
         ++i)
-      os  << " " << *i;
+      builds  << " " << EncodeIdent(*i, os);
     }
 
   // Write order-only dependencies.
   if(!orderOnlyDeps.empty())
     {
-    os << " ||";
+    builds << " ||";
     for(cmNinjaDeps::const_iterator i = orderOnlyDeps.begin();
         i != orderOnlyDeps.end();
         ++i)
-      os  << " " << *i;
+      builds  << " " << EncodeIdent(*i, os);
     }
 
-  os << "\n";
+  builds << "\n";
+
+  os << builds.str();
 
   // Write the variables bound to this build statement.
   if(!variables.empty())
