@@ -331,6 +331,7 @@ void cmGlobalNinjaGenerator
       message += "\" yet.";
       cmSystemTools::Error(message.c_str());
       }
+    this->ResolveLanguageCompiler(*l, mf, optional);
     }
 }
 
