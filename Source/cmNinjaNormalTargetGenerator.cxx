@@ -172,10 +172,8 @@ cmNinjaNormalTargetGenerator
                 << this->GetVisibleTypeName() << " $out";
     this->GetGlobalGenerator()->AddRule(ruleName,
                                         linkCmd,
-                                        comment.str(),
                                         description.str(),
-                                        /*depfile*/ "",
-                                        cmNinjaVars());
+                                        comment.str());
   }
 
   if (this->TargetNameOut != this->TargetNameReal) {
@@ -186,19 +184,15 @@ cmNinjaNormalTargetGenerator
                                           cmakeCommand +
                                           " -E cmake_symlink_executable"
                                           " $in $out",
-                                          "Rule for creating executable symlink.",
                                           "Creating executable symlink $out",
-                                          /*depfile*/ "",
-                                          cmNinjaVars());
+                                          "Rule for creating executable symlink.");
     else
       this->GetGlobalGenerator()->AddRule("CMAKE_SYMLINK_LIBRARY",
                                           cmakeCommand +
                                           " -E cmake_symlink_library"
                                           " $in $SONAME $out",
-                                          "Rule for creating library symlink.",
                                           "Creating library symlink $out",
-                                          /*depfile*/ "",
-                                          cmNinjaVars());
+                                          "Rule for creating library symlink.");
   }
 }
 

@@ -99,10 +99,11 @@ public:
   static void WriteRule(std::ostream& os,
                         const std::string& name,
                         const std::string& command,
-                        const std::string& comment,
                         const std::string& description,
-                        const std::string& depfile,
-                        const cmNinjaVars& variables);
+                        const std::string& comment = "",
+                        const std::string& depfile = "",
+                        bool restat = false,
+                        const cmNinjaVars& variables = cmNinjaVars());
 
   /**
    * Write a variable named @a name to @a os with value @a value and an
@@ -199,10 +200,11 @@ public:
    */
   void AddRule(const std::string& name,
                const std::string& command,
-               const std::string& comment,
                const std::string& description,
-               const std::string& depfile,
-               const cmNinjaVars& variables);
+               const std::string& comment = "",
+               const std::string& depfile = "",
+               bool restat = false,
+               const cmNinjaVars& variables = cmNinjaVars());
 
   bool HasRule(const std::string& name);
 

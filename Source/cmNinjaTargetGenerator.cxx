@@ -400,13 +400,11 @@ cmNinjaTargetGenerator
   std::ostringstream description;
   description << "Building " << language << " object $out";
   std::string depfile = "$out.d";
-  cmNinjaVars emptyVars;
   this->GetGlobalGenerator()->AddRule(this->LanguageCompilerRule(language),
                                       compileCmd,
-                                      comment.str(),
                                       description.str(),
-                                      depfile,
-                                      emptyVars);
+                                      comment.str(),
+                                      depfile);
 }
 
 void
@@ -620,10 +618,10 @@ void cmNinjaTargetGenerator::AppendCustomCommandLines(const cmCustomCommand *cc,
 void cmNinjaTargetGenerator::WriteCustomCommandRule() {
   this->GetGlobalGenerator()->AddRule("CUSTOM_COMMAND",
                                       "$COMMAND",
-                                      "Rule for running custom commands.",
                                       "$DESC",
+                                      "Rule for running custom commands.",
                                       /*depfile*/ "",
-                                      cmNinjaVars());
+                                      /*restat*/ true);
 }
 
 void
