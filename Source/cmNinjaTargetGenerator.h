@@ -104,6 +104,7 @@ protected:
   virtual std::string GetTargetOutputDir() const;
 
   void AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) const;
+  void AppendTargetDepends(cmNinjaDeps& outputs) const;
 
   /**
    * Write shortcut build statements for the target name with the target

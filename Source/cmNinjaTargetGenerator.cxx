@@ -312,6 +312,17 @@ cmNinjaTargetGenerator
 
 void
 cmNinjaTargetGenerator
+::AppendTargetDepends(cmNinjaDeps& outputs) const {
+  cmTargetDependSet const& targetDeps =
+    this->GetGlobalGenerator()->GetTargetDirectDepends(*this->Target);
+  for (cmTargetDependSet::const_iterator i = targetDeps.begin();
+       i != targetDeps.end(); ++i) {
+    this->AppendTargetOutputs(*i, outputs);
+  }
+}
+
+void
+cmNinjaTargetGenerator
 ::WriteTargetBuild(const std::string& outputName,
                    const std::string& outputPath)
 {
@@ -458,15 +469,9 @@ cmNinjaTargetGenerator
   explicitDeps.push_back(sourceFileName);
 
   // Ensure that the target dependencies are built before any source file in the
-  // target, using order-only dependencies.  These dependencies should later
-  // resolve to direct header dependencies in the depfile.
+  // target, using order-only dependencies.
   cmNinjaDeps orderOnlyDeps;
-  cmTargetDependSet const& targetDeps =
-    this->GetGlobalGenerator()->GetTargetDirectDepends(*this->Target);
-  for (cmTargetDependSet::const_iterator i = targetDeps.begin();
-       i != targetDeps.end(); ++i) {
-    this->AppendTargetOutputs(*i, orderOnlyDeps);
-  }
+  this->AppendTargetDepends(orderOnlyDeps);
 
   if(const char* objectDeps = source->GetProperty("OBJECT_DEPENDS")) {
     std::vector<std::string> depList;
@@ -630,7 +635,8 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
     return;
 
   const std::vector<std::string> &outputs = cc->GetOutputs();
-  cmNinjaDeps ninjaOutputs(outputs.size()), ninjaDeps;
+  cmNinjaDeps ninjaOutputs(outputs.size()), ninjaDeps, orderOnlyDeps;
+  this->AppendTargetDepends(orderOnlyDeps);
 
   std::transform(outputs.begin(), outputs.end(),
                  ninjaOutputs.begin(), MapToNinjaPath());
@@ -650,7 +656,7 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
                                             ninjaOutputs,
                                             ninjaDeps,
                                             cmNinjaDeps(),
-                                            cmNinjaDeps(),
+                                            orderOnlyDeps,
                                             cmNinjaVars());
   } else {
     this->WriteCustomCommandRule();
@@ -665,7 +671,7 @@ cmNinjaTargetGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc) {
                                        ninjaOutputs,
                                        ninjaDeps,
                                        cmNinjaDeps(),
-                                       cmNinjaDeps(),
+                                       orderOnlyDeps,
                                        vars);
   }
 }
