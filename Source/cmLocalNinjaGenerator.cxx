@@ -10,6 +10,7 @@
   See the License for more information.
 ============================================================================*/
 #include "cmLocalNinjaGenerator.h"
+#include "cmCustomCommandGenerator.h"
 #include "cmMakefile.h"
 #include "cmGlobalNinjaGenerator.h"
 #include "cmNinjaTargetGenerator.h"
@@ -17,6 +18,8 @@
 #include "cmSourceFile.h"
 #include "cmComputeLinkInformation.h"
 #include "cmake.h"
+
+#include <assert.h>
 
 cmLocalNinjaGenerator::cmLocalNinjaGenerator()
   : cmLocalGenerator()
@@ -36,8 +39,6 @@ cmLocalNinjaGenerator::~cmLocalNinjaGenerator()
 
 void cmLocalNinjaGenerator::Generate()
 {
-
-
   this->SetConfigName();
 
   this->WriteProcessedMakefile(this->GetBuildFileStream());
@@ -59,6 +60,7 @@ void cmLocalNinjaGenerator::Generate()
       }
     }
 
+  this->WriteCustomCommandBuildStatements();
 }
 
 // Implemented in:
@@ -253,4 +255,200 @@ void cmLocalNinjaGenerator::WriteProcessedMakefile(std::ostream& os)
     os << "# Which is the root file." << std::endl;
   cmGlobalNinjaGenerator::WriteDivider(os);
   os << std::endl;
+}
+
+std::string cmLocalNinjaGenerator::ConvertToNinjaPath(const char *path)
+{
+  return this->Convert(path,
+                       cmLocalGenerator::HOME_OUTPUT,
+                       cmLocalGenerator::MAKEFILE);
+}
+
+void
+cmLocalNinjaGenerator
+::AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) {
+  switch (target->GetType()) {
+  case cmTarget::EXECUTABLE:
+  case cmTarget::SHARED_LIBRARY:
+  case cmTarget::STATIC_LIBRARY: {
+    std::string name = target->GetFullName(this->GetConfigName());
+    std::string dir = target->GetDirectory(this->GetConfigName());
+    std::string path = ConvertToNinjaPath(dir.c_str());
+    if (path.empty() || path == ".")
+      outputs.push_back(name);
+    else {
+      path += "/";
+      path += name;
+      outputs.push_back(path);
+    }
+    break;
+  }
+
+  case cmTarget::UTILITY: {
+    const std::vector<cmSourceFile*>& sources = target->GetSourceFiles();
+    for(std::vector<cmSourceFile*>::const_iterator source = sources.begin();
+        source != sources.end(); ++source) {
+      if(cmCustomCommand* cc = (*source)->GetCustomCommand()) {
+        if (!cc->GetCommandLines().empty()) {
+          const std::vector<std::string>& ccoutputs = cc->GetOutputs();
+          std::transform(ccoutputs.begin(), ccoutputs.end(),
+                         std::back_inserter(outputs), MapToNinjaPath());
+        }
+      }
+    }
+  }
+  }
+}
+
+void
+cmLocalNinjaGenerator
+::AppendTargetDepends(cmTarget* target, cmNinjaDeps& outputs) {
+  cmTargetDependSet const& targetDeps =
+    this->GetGlobalGenerator()->GetTargetDirectDepends(*target);
+  for (cmTargetDependSet::const_iterator i = targetDeps.begin();
+       i != targetDeps.end(); ++i) {
+    this->AppendTargetOutputs(*i, outputs);
+  }
+}
+
+void cmLocalNinjaGenerator::AppendCustomCommandDeps(const cmCustomCommand *cc, cmNinjaDeps &ninjaDeps) {
+  const std::vector<std::string> &deps = cc->GetDepends();
+  for (std::vector<std::string>::const_iterator i = deps.begin();
+       i != deps.end(); ++i) {
+    std::string dep;
+    if (this->GetRealDependency(i->c_str(), this->GetConfigName(), dep))
+      ninjaDeps.push_back(ConvertToNinjaPath(dep.c_str()));
+  }
+}
+
+std::string cmLocalNinjaGenerator::BuildCommandLine(const std::vector<std::string> &cmdLines) {
+  // If we have no commands but we need to build a command anyway, use "true".
+  // This happens when building a POST_BUILD value for link targets that
+  // don't use POST_BUILD.
+  if (cmdLines.empty())
+    return "true";
+
+  // TODO: This will work only on Unix platforms. I don't
+  // want to use a link.txt file because I will loose the benefit of the
+  // $in variables. A discussion about dealing with multiple commands in
+  // a rule is started here:
+  // http://groups.google.com/group/ninja-build/browse_thread/thread/d515f23a78986008
+  std::ostringstream cmd;
+  for (std::vector<std::string>::const_iterator li = cmdLines.begin();
+       li != cmdLines.end(); ++li) {
+    if (li != cmdLines.begin())
+      cmd << " && ";
+    cmd << *li;
+  }
+  return cmd.str();
+}
+
+void cmLocalNinjaGenerator::AppendCustomCommandLines(const cmCustomCommand *cc, std::vector<std::string> &cmdLines) {
+  cmCustomCommandGenerator ccg(*cc, this->GetConfigName(), this->Makefile);
+  if (ccg.GetNumberOfCommands() > 0) {
+    std::ostringstream cdCmd;
+    cdCmd << "cd ";
+    if (const char* wd = cc->GetWorkingDirectory())
+      cdCmd << wd;
+    else
+      cdCmd << this->GetMakefile()->GetStartOutputDirectory();
+    cmdLines.push_back(cdCmd.str());
+  }
+  for (unsigned i = 0; i != ccg.GetNumberOfCommands(); ++i) {
+    cmdLines.push_back(ccg.GetCommand(i));
+    std::string& cmd = cmdLines.back();
+    ccg.AppendArguments(i, cmd);
+  }
+}
+
+void cmLocalNinjaGenerator::WriteCustomCommandRule() {
+  this->GetGlobalNinjaGenerator()->AddRule("CUSTOM_COMMAND",
+                                           "$COMMAND",
+                                           "$DESC",
+                                           "Rule for running custom commands.",
+                                           /*depfile*/ "",
+                                           /*restat*/ true);
+}
+
+void
+cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc,
+                                             const cmNinjaDeps& orderOnlyDeps) {
+  if (this->GetGlobalNinjaGenerator()->SeenCustomCommand(cc))
+    return;
+
+  const std::vector<std::string> &outputs = cc->GetOutputs();
+  cmNinjaDeps ninjaOutputs(outputs.size()), ninjaDeps;
+
+  std::transform(outputs.begin(), outputs.end(),
+                 ninjaOutputs.begin(), MapToNinjaPath());
+  this->AppendCustomCommandDeps(cc, ninjaDeps);
+
+  for (cmNinjaDeps::iterator i = ninjaOutputs.begin(); i != ninjaOutputs.end();
+       ++i)
+    this->GetGlobalNinjaGenerator()->SeenCustomCommandOutput(*i);
+
+  std::vector<std::string> cmdLines;
+  this->AppendCustomCommandLines(cc, cmdLines);
+
+  if (cmdLines.empty()) {
+    cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
+                                            "Phony custom command for " +
+                                              ninjaOutputs[0],
+                                            ninjaOutputs,
+                                            ninjaDeps,
+                                            cmNinjaDeps(),
+                                            orderOnlyDeps,
+                                            cmNinjaVars());
+  } else {
+    this->WriteCustomCommandRule();
+
+    cmNinjaVars vars;
+    vars["COMMAND"] = this->BuildCommandLine(cmdLines);
+    vars["DESC"] = this->ConstructComment(*cc);
+
+    cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
+                                       "Custom command for " + ninjaOutputs[0],
+                                       "CUSTOM_COMMAND",
+                                       ninjaOutputs,
+                                       ninjaDeps,
+                                       cmNinjaDeps(),
+                                       orderOnlyDeps,
+                                       vars);
+  }
+}
+
+void cmLocalNinjaGenerator::AddCustomCommandTarget(cmCustomCommand* cc, cmTarget* target)
+{
+  this->CustomCommandTargets[cc].insert(target);
+}
+
+void cmLocalNinjaGenerator::WriteCustomCommandBuildStatements()
+{
+  for (CustomCommandTargetMap::iterator i = this->CustomCommandTargets.begin();
+       i != this->CustomCommandTargets.end(); ++i) {
+    // A custom command may appear on multiple targets.  However, some build
+    // systems exist where the target dependencies on some of the targets are
+    // overspecified, leading to a dependency cycle.  If we assume all target
+    // dependencies are a superset of the true target dependencies for this
+    // custom command, we can take the set intersection of all target dependencies
+    // to obtain a correct dependency list.
+    std::set<cmTarget*>::iterator j = i->second.begin();
+    assert(j != i->second.end());
+    std::vector<std::string> ccTargetDeps;
+    this->AppendTargetDepends(*j, ccTargetDeps);
+    std::sort(ccTargetDeps.begin(), ccTargetDeps.end());
+    ++j;
+
+    for (; j != i->second.end(); ++j) {
+      std::vector<std::string> jDeps, depsIntersection;
+      this->AppendTargetDepends(*j, jDeps);
+      std::sort(jDeps.begin(), jDeps.end());
+      std::set_intersection(ccTargetDeps.begin(), ccTargetDeps.end(),
+                            jDeps.begin(), jDeps.end(),
+                            std::back_inserter(depsIntersection));
+      ccTargetDeps = depsIntersection;
+    }
+
+    this->WriteCustomCommandBuildStatement(i->first, ccTargetDeps);
+  }
 }

@@ -10,13 +10,13 @@
   See the License for more information.
 ============================================================================*/
 #ifndef cmNinjaTargetGenerator_h
-#  define cmNinjaTargetGenerator_h
+#define cmNinjaTargetGenerator_h
 
-#  include "cmStandardIncludes.h"
-#  include "cmNinjaTypes.h"
+#include "cmStandardIncludes.h"
+#include "cmNinjaTypes.h"
+#include "cmLocalNinjaGenerator.h"
 
 class cmTarget;
-class cmLocalNinjaGenerator;
 class cmGlobalNinjaGenerator;
 class cmGeneratedFileStream;
 class cmMakefile;
@@ -74,18 +74,8 @@ protected:
   std::string ComputeDefines(cmSourceFile *source, const std::string& language);
 
   std::string ConvertToNinjaPath(const char *path) const;
-
-  struct map_to_ninja_path {
-    const cmNinjaTargetGenerator *TargetGenerator;
-    map_to_ninja_path(const cmNinjaTargetGenerator *TargetGenerator)
-      : TargetGenerator(TargetGenerator) {}
-    std::string operator()(const std::string &path) {
-      return TargetGenerator->ConvertToNinjaPath(path.c_str());
-    }
-  };
-
-  map_to_ninja_path MapToNinjaPath() const {
-    return map_to_ninja_path(this);
+  cmLocalNinjaGenerator::map_to_ninja_path MapToNinjaPath() const {
+    return this->GetLocalGenerator()->MapToNinjaPath();
   }
 
   /// @return the list of link dependency for the given target @a target.
@@ -103,20 +93,12 @@ protected:
   /// @return the output path for the target.
   virtual std::string GetTargetOutputDir() const;
 
-  void AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) const;
-  void AppendTargetDepends(cmNinjaDeps& outputs) const;
-
   /**
    * Write shortcut build statements for the target name with the target
    * output name and the target output path.
    */
   void WriteTargetBuild(const std::string& outputName,
                         const std::string& outputPath);
-
-  void AppendCustomCommandDeps(const cmCustomCommand *cc, cmNinjaDeps &ninjaDeps);
-  std::string BuildCommandLine(const std::vector<std::string> &cmdLines);
-  void AppendCustomCommandLines(const cmCustomCommand *cc, std::vector<std::string> &cmdLines);
-  void WriteCustomCommandRule();
 
   void WriteLanguageRules(const std::string& language);
   void WriteCompileRule(const std::string& language);

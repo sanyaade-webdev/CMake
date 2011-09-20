@@ -32,8 +32,8 @@ void cmNinjaUtilityTargetGenerator::Generate() {
   for (unsigned i = 0; i != 2; ++i) {
     for (std::vector<cmCustomCommand>::const_iterator ci = cmdLists[i]->begin();
          ci != cmdLists[i]->end(); ++ci) {
-      this->AppendCustomCommandDeps(&*ci, deps);
-      this->AppendCustomCommandLines(&*ci, commands);
+      this->GetLocalGenerator()->AppendCustomCommandDeps(&*ci, deps);
+      this->GetLocalGenerator()->AppendCustomCommandLines(&*ci, commands);
     }
   }
 
@@ -44,7 +44,7 @@ void cmNinjaUtilityTargetGenerator::Generate() {
     {
     if(cmCustomCommand* cc = (*source)->GetCustomCommand())
       {
-      this->WriteCustomCommandBuildStatement(cc);
+      this->GetLocalGenerator()->AddCustomCommandTarget(cc, this->GetTarget());
 
       // Depend on all custom command outputs.
       const std::vector<std::string>& outputs = cc->GetOutputs();
@@ -65,10 +65,10 @@ void cmNinjaUtilityTargetGenerator::Generate() {
                                             cmNinjaDeps(),
                                             cmNinjaVars());
   } else {
-    this->WriteCustomCommandRule();
+    this->GetLocalGenerator()->WriteCustomCommandRule();
 
     cmNinjaVars vars;
-    vars["COMMAND"] = this->BuildCommandLine(commands);
+    vars["COMMAND"] = this->GetLocalGenerator()->BuildCommandLine(commands);
     const char *desc = this->GetTarget()->GetProperty("EchoString");
     if (desc)
       vars["DESC"] = desc;

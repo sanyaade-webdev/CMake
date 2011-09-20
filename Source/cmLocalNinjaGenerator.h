@@ -79,6 +79,7 @@ private:
   // In order to access to protected member of the local generator.
   friend class cmNinjaTargetGenerator;
   friend class cmNinjaNormalTargetGenerator;
+  friend class cmNinjaUtilityTargetGenerator;
 
 private:
   cmGeneratedFileStream& GetBuildFileStream() const;
@@ -92,9 +93,39 @@ private:
 
   void SetConfigName();
 
+  std::string ConvertToNinjaPath(const char *path);
+
+  struct map_to_ninja_path {
+    cmLocalNinjaGenerator *LocalGenerator;
+    map_to_ninja_path(cmLocalNinjaGenerator *LocalGenerator)
+      : LocalGenerator(LocalGenerator) {}
+    std::string operator()(const std::string &path) {
+      return LocalGenerator->ConvertToNinjaPath(path.c_str());
+    }
+  };
+  map_to_ninja_path MapToNinjaPath() {
+    return map_to_ninja_path(this);
+  }
+
+  void AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs);
+  void AppendTargetDepends(cmTarget* target, cmNinjaDeps& outputs);
+
+  void AppendCustomCommandDeps(const cmCustomCommand *cc, cmNinjaDeps &ninjaDeps);
+  std::string BuildCommandLine(const std::vector<std::string> &cmdLines);
+  void AppendCustomCommandLines(const cmCustomCommand *cc, std::vector<std::string> &cmdLines);
+  void WriteCustomCommandRule(); 
+  void WriteCustomCommandBuildStatement(cmCustomCommand *cc,
+                                        const cmNinjaDeps& orderOnlyDeps);
+
+  void AddCustomCommandTarget(cmCustomCommand* cc, cmTarget* target);
+  void WriteCustomCommandBuildStatements();
+
 private:
   std::string ConfigName;
   std::string HomeRelativeOutputPath;
+
+  typedef std::map<cmCustomCommand*, std::set<cmTarget*> > CustomCommandTargetMap;
+  CustomCommandTargetMap CustomCommandTargets;
 };
 
 #endif // ! cmLocalNinjaGenerator_h
