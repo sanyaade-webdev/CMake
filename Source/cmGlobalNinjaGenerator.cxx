@@ -553,13 +553,14 @@ void cmGlobalNinjaGenerator::WriteAssumedSourceDependencies(std::ostream& os)
   for (std::map<std::string, std::set<std::string> >::iterator
        i = this->AssumedSourceDependencies.begin();
        i != this->AssumedSourceDependencies.end(); ++i) {
-    WritePhonyBuild(os,
-                    "Assume dependencies for generated source file.",
-                    cmNinjaDeps(1, i->first),
-                    cmNinjaDeps(),
-                    cmNinjaDeps(),
-                    cmNinjaDeps(i->second.begin(), i->second.end()),
-                    cmNinjaVars());
+    WriteBuild(os,
+               "Assume dependencies for generated source file.",
+               "CUSTOM_COMMAND",
+               cmNinjaDeps(1, i->first),
+               cmNinjaDeps(i->second.begin(), i->second.end()),
+               cmNinjaDeps(),
+               cmNinjaDeps(),
+               cmNinjaVars());
   }
 }
 
