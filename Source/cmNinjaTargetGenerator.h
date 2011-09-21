@@ -105,7 +105,6 @@ protected:
   void WriteObjectBuildStatements();
   void WriteObjectBuildStatement(cmSourceFile* source);
   void WriteCustomCommandBuildStatement(cmCustomCommand *cc);
-  std::string ComputeLinkFlags(const std::string& linkLanguage);
 
   cmNinjaDeps GetObjects() const
   { return this->Objects; }
