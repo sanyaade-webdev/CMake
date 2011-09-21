@@ -47,13 +47,19 @@ cmNinjaNormalTargetGenerator::~cmNinjaNormalTargetGenerator()
 
 void cmNinjaNormalTargetGenerator::Generate()
 {
+  if (!this->TargetLinkLanguage) {
+    cmSystemTools::Error("CMake can not determine linker language for target:",
+                         this->GetTarget()->GetName());
+    return;
+  }
+
   // Write the rules for each language.
   this->WriteLanguagesRules();
 
   // Write the build statements
   this->WriteObjectBuildStatements();
 
-  // Write the link statement.
+  this->WriteLinkRule();
   this->WriteLinkStatement();
 
   this->GetBuildFileStream() << "\n";
@@ -76,7 +82,6 @@ void cmNinjaNormalTargetGenerator::WriteLanguagesRules()
       l != languages.end();
       ++l)
     this->WriteLanguageRules(*l);
-  this->WriteLinkRule();
 }
 
 const char *cmNinjaNormalTargetGenerator::GetVisibleTypeName() const {
