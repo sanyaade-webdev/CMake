@@ -31,6 +31,7 @@ cmNinjaTargetGenerator::New(cmTarget* target)
       case cmTarget::EXECUTABLE:
       case cmTarget::SHARED_LIBRARY:
       case cmTarget::STATIC_LIBRARY:
+      case cmTarget::MODULE_LIBRARY:
         return new cmNinjaNormalTargetGenerator(target);
 
       case cmTarget::UTILITY:

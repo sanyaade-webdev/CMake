@@ -85,6 +85,8 @@ const char *cmNinjaNormalTargetGenerator::GetVisibleTypeName() const {
       return "static library";
     case cmTarget::SHARED_LIBRARY:
       return "shared library";
+    case cmTarget::MODULE_LIBRARY:
+      return "shared module";
     case cmTarget::EXECUTABLE:
       return "executable";
     default:
@@ -201,7 +203,8 @@ std::vector<std::string>
 cmNinjaNormalTargetGenerator
 ::ComputeLinkCmd()
 {
-  switch (this->GetTarget()->GetType()) {
+  cmTarget::TargetType targetType = this->GetTarget()->GetType();
+  switch (targetType) {
     case cmTarget::STATIC_LIBRARY: {
       // Check if you have a non archive way to create the static library.
       {
@@ -244,18 +247,22 @@ cmNinjaNormalTargetGenerator
       }
       return linkCmds;
     }
-    case cmTarget::SHARED_LIBRARY: {
-      std::string linkCmdVar = "CMAKE_";
-      linkCmdVar += this->TargetLinkLanguage;
-      linkCmdVar += "_CREATE_SHARED_LIBRARY";
-      const char *linkCmd =
-        this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-      return std::vector<std::string>(1, linkCmd);
-    }
+    case cmTarget::SHARED_LIBRARY:
+    case cmTarget::MODULE_LIBRARY:
     case cmTarget::EXECUTABLE: {
       std::string linkCmdVar = "CMAKE_";
       linkCmdVar += this->TargetLinkLanguage;
-      linkCmdVar += "_LINK_EXECUTABLE";
+      switch (targetType) {
+      case cmTarget::SHARED_LIBRARY:
+        linkCmdVar += "_CREATE_SHARED_LIBRARY";
+        break;
+      case cmTarget::MODULE_LIBRARY:
+        linkCmdVar += "_CREATE_SHARED_MODULE";
+        break;
+      case cmTarget::EXECUTABLE:
+        linkCmdVar += "_LINK_EXECUTABLE";
+        break;
+      }
       const char *linkCmd =
         this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
       return std::vector<std::string>(1, linkCmd);
