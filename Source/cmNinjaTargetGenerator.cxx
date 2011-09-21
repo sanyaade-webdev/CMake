@@ -407,8 +407,11 @@ cmNinjaTargetGenerator
   const char* language = source->GetLanguage();
   // If we cannot get the language this is probably a non-source file provided
   // in the list (typically an header file).
-  if (!language)
+  if (!language) {
+    if (source->GetPropertyAsBool("EXTERNAL_OBJECT"))
+      this->Objects.push_back(this->GetSourceFilePath(source));
     return;
+  }
   std::string rule = this->LanguageCompilerRule(language);
 
   cmNinjaDeps outputs;
