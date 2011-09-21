@@ -57,6 +57,7 @@ public:
   static void WriteDivider(std::ostream& os);
 
   static std::string EncodeIdent(const std::string &ident, std::ostream &vars);
+  static std::string EncodeLiteral(const std::string &lit);
 
   /**
    * Write the given @a comment to the output stream @a os. It
@@ -89,6 +90,13 @@ public:
                               const cmNinjaDeps& implicitDeps,
                               const cmNinjaDeps& orderOnlyDeps,
                               const cmNinjaVars& variables);
+
+  void WriteCustomCommandBuild(const std::string& command,
+                               const std::string& description,
+                               const std::string& comment,
+                               const cmNinjaDeps& outputs,
+                               const cmNinjaDeps& deps = cmNinjaDeps(),
+                              const cmNinjaDeps& orderOnlyDeps = cmNinjaDeps());
 
   /**
    * Write a rule statement named @a name to @a os with the @a comment,
@@ -207,6 +215,8 @@ public:
                const cmNinjaVars& variables = cmNinjaVars());
 
   bool HasRule(const std::string& name);
+
+  void AddCustomCommandRule();
 
 protected:
 

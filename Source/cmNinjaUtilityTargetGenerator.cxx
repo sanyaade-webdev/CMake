@@ -11,15 +11,6 @@ cmNinjaUtilityTargetGenerator::cmNinjaUtilityTargetGenerator(cmTarget *target)
 
 cmNinjaUtilityTargetGenerator::~cmNinjaUtilityTargetGenerator() {}
 
-static void find_replace(std::string &str, const std::string &find,
-                         const std::string &replace) {
-  std::string::size_type pos = 0;
-  while ((pos = str.find(find, pos)) != std::string::npos) {
-    str.replace(pos, find.size(), replace);
-    pos += replace.size();
-  }
-}
-
 void cmNinjaUtilityTargetGenerator::Generate() {
   std::vector<std::string> commands;
   cmNinjaDeps deps;
@@ -65,38 +56,34 @@ void cmNinjaUtilityTargetGenerator::Generate() {
                                             cmNinjaDeps(),
                                             cmNinjaVars());
   } else {
-    this->GetLocalGenerator()->WriteCustomCommandRule();
-
-    cmNinjaVars vars;
-    vars["COMMAND"] = this->GetLocalGenerator()->BuildCommandLine(commands);
-    const char *desc = this->GetTarget()->GetProperty("EchoString");
-    if (desc)
-      vars["DESC"] = desc;
+    std::string command = this->GetLocalGenerator()->BuildCommandLine(commands);
+    const char *echoStr = this->GetTarget()->GetProperty("EchoString");
+    std::string desc;
+    if (echoStr)
+      desc = echoStr;
     else
-      vars["DESC"] = "Running utility command for " + this->GetTargetName();
+      desc = "Running utility command for " + this->GetTargetName();
 
     // TODO: fix problematic global targets.  For now, search and replace the
     // makefile vars.
-    find_replace(vars["COMMAND"], "$(CMAKE_SOURCE_DIR)",
-                 this->GetTarget()->GetMakefile()->GetHomeDirectory());
-    find_replace(vars["COMMAND"], "$(CMAKE_BINARY_DIR)",
-                 this->GetTarget()->GetMakefile()->GetHomeOutputDirectory());
-    find_replace(vars["COMMAND"], "$(ARGS)", "");
+    cmSystemTools::ReplaceString(command, "$(CMAKE_SOURCE_DIR)",
+                          this->GetTarget()->GetMakefile()->GetHomeDirectory());
+    cmSystemTools::ReplaceString(command, "$(CMAKE_BINARY_DIR)",
+                    this->GetTarget()->GetMakefile()->GetHomeOutputDirectory());
+    cmSystemTools::ReplaceString(command, "$(ARGS)", "");
 
-    if (vars["COMMAND"].find('$') != std::string::npos)
+    if (command.find('$') != std::string::npos)
       return;
 
     std::string utilCommandName = cmake::GetCMakeFilesDirectoryPostSlash();
     utilCommandName += this->GetTargetName() + ".util";
 
-    cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
-                                       "Utility command for " + this->GetTargetName(),
-                                       "CUSTOM_COMMAND",
-                                       cmNinjaDeps(1, utilCommandName),
-                                       deps,
-                                       cmNinjaDeps(),
-                                       cmNinjaDeps(),
-                                       vars);
+    this->GetGlobalGenerator()->WriteCustomCommandBuild(
+      command,
+      desc,
+      "Utility command for " + this->GetTargetName(),
+      cmNinjaDeps(1, utilCommandName),
+      deps);
 
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
                                             "",

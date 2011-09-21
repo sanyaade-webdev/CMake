@@ -71,6 +71,12 @@ std::string cmGlobalNinjaGenerator::EncodeIdent(const std::string &ident,
   }
 }
 
+std::string cmGlobalNinjaGenerator::EncodeLiteral(const std::string &lit) {
+  std::string result = lit;
+  cmSystemTools::ReplaceString(result, "$", "$$");
+  return result;
+}
+
 void cmGlobalNinjaGenerator::WriteBuild(std::ostream& os,
                                         const std::string& comment,
                                         const std::string& rule,
@@ -172,6 +178,40 @@ void cmGlobalNinjaGenerator::WritePhonyBuild(std::ostream& os,
                                      implicitDeps,
                                      orderOnlyDeps,
                                      variables);
+}
+
+void cmGlobalNinjaGenerator::AddCustomCommandRule()
+{
+  this->AddRule("CUSTOM_COMMAND",
+                "$COMMAND",
+                "$DESC",
+                "Rule for running custom commands.",
+                /*depfile*/ "",
+                /*restat*/ true);
+}
+
+void
+cmGlobalNinjaGenerator::WriteCustomCommandBuild(const std::string& command,
+                                                const std::string& description,
+                                                const std::string& comment,
+                                                const cmNinjaDeps& outputs,
+                                                const cmNinjaDeps& deps,
+                                               const cmNinjaDeps& orderOnlyDeps)
+{
+  this->AddCustomCommandRule();
+
+  cmNinjaVars vars;
+  vars["COMMAND"] = command;
+  vars["DESC"] = EncodeLiteral(description);
+
+  cmGlobalNinjaGenerator::WriteBuild(*this->BuildFileStream,
+                                     comment,
+                                     "CUSTOM_COMMAND",
+                                     outputs,
+                                     deps,
+                                     cmNinjaDeps(),
+                                     orderOnlyDeps,
+                                     vars);
 }
 
 void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
@@ -553,14 +593,10 @@ void cmGlobalNinjaGenerator::WriteAssumedSourceDependencies(std::ostream& os)
   for (std::map<std::string, std::set<std::string> >::iterator
        i = this->AssumedSourceDependencies.begin();
        i != this->AssumedSourceDependencies.end(); ++i) {
-    WriteBuild(os,
-               "Assume dependencies for generated source file.",
-               "CUSTOM_COMMAND",
-               cmNinjaDeps(1, i->first),
-               cmNinjaDeps(i->second.begin(), i->second.end()),
-               cmNinjaDeps(),
-               cmNinjaDeps(),
-               cmNinjaVars());
+    WriteCustomCommandBuild(/*command=*/"", /*description=*/"",
+                            "Assume dependencies for generated source file.",
+                            cmNinjaDeps(1, i->first),
+                            cmNinjaDeps(i->second.begin(), i->second.end()));
   }
 }
 

@@ -361,15 +361,6 @@ void cmLocalNinjaGenerator::AppendCustomCommandLines(const cmCustomCommand *cc, 
   }
 }
 
-void cmLocalNinjaGenerator::WriteCustomCommandRule() {
-  this->GetGlobalNinjaGenerator()->AddRule("CUSTOM_COMMAND",
-                                           "$COMMAND",
-                                           "$DESC",
-                                           "Rule for running custom commands.",
-                                           /*depfile*/ "",
-                                           /*restat*/ true);
-}
-
 void
 cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc,
                                              const cmNinjaDeps& orderOnlyDeps) {
@@ -400,20 +391,13 @@ cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(cmCustomCommand *cc,
                                             orderOnlyDeps,
                                             cmNinjaVars());
   } else {
-    this->WriteCustomCommandRule();
-
-    cmNinjaVars vars;
-    vars["COMMAND"] = this->BuildCommandLine(cmdLines);
-    vars["DESC"] = this->ConstructComment(*cc);
-
-    cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
-                                       "Custom command for " + ninjaOutputs[0],
-                                       "CUSTOM_COMMAND",
-                                       ninjaOutputs,
-                                       ninjaDeps,
-                                       cmNinjaDeps(),
-                                       orderOnlyDeps,
-                                       vars);
+    this->GetGlobalNinjaGenerator()->WriteCustomCommandBuild(
+      this->BuildCommandLine(cmdLines),
+      this->ConstructComment(*cc),
+      "Custom command for " + ninjaOutputs[0],
+      ninjaOutputs,
+      ninjaDeps,
+      orderOnlyDeps);
   }
 }
 
