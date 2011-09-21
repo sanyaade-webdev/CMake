@@ -623,7 +623,7 @@ void cmGlobalNinjaGenerator::WriteTargetRebuildManifest(std::ostream& os)
   WriteBuild(os,
              "Re-run CMake if any of its inputs changed.",
              "RERUN_CMAKE",
-             /*outputs=*/ cmNinjaDeps(1, "build.ninja"),
+             /*outputs=*/ cmNinjaDeps(1, NINJA_BUILD_FILE),
              /*explicitDeps=*/ cmNinjaDeps(),
              implicitDeps,
              /*orderOnlyDeps=*/ cmNinjaDeps(),
