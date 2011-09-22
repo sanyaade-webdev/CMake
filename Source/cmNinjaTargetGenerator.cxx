@@ -343,7 +343,7 @@ cmNinjaTargetGenerator
   vars.Source = "$in";
   vars.Object = "$out";
 
-  if (this->GetTargetName() == "cmTryCompileExec")
+  if (this->GetGlobalGenerator()->GetCMakeInstance()->GetIsInTryCompile())
     vars.Flags = "$FLAGS";
   else
     vars.Flags = "-MMD -MF $out.d $FLAGS";
