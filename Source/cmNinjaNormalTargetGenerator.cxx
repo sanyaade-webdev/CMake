@@ -192,14 +192,14 @@ cmNinjaNormalTargetGenerator
       this->GetGlobalGenerator()->AddRule("CMAKE_SYMLINK_EXECUTABLE",
                                           cmakeCommand +
                                           " -E cmake_symlink_executable"
-                                          " $in $out",
+                                          " $in $out && $POST_BUILD",
                                           "Creating executable symlink $out",
                                           "Rule for creating executable symlink.");
     else
       this->GetGlobalGenerator()->AddRule("CMAKE_SYMLINK_LIBRARY",
                                           cmakeCommand +
                                           " -E cmake_symlink_library"
-                                          " $in $SONAME $out",
+                                          " $in $SONAME $out && $POST_BUILD",
                                           "Creating library symlink $out",
                                           "Rule for creating library symlink.");
   }
@@ -346,8 +346,16 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
 
   vars["PRE_LINK"] =
     this->GetLocalGenerator()->BuildCommandLine(preLinkCmdLines);
-  vars["POST_BUILD"] =
+  std::string postBuildCmdLine =
     this->GetLocalGenerator()->BuildCommandLine(postBuildCmdLines);
+
+  cmNinjaVars symlinkVars;
+  if (targetOutput == targetOutputReal) {
+    vars["POST_BUILD"] = postBuildCmdLine;
+  } else {
+    vars["POST_BUILD"] = ":";
+    symlinkVars["POST_BUILD"] = postBuildCmdLine;
+  }
 
   // Write the build statement for this target.
   cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
@@ -368,9 +376,8 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
                                          cmNinjaDeps(1, targetOutputReal),
                                          emptyDeps,
                                          emptyDeps,
-                                         cmNinjaVars());
+                                         symlinkVars);
     } else {
-      cmNinjaVars symlinkVars;
       symlinkVars["SONAME"] = this->GetTargetFilePath(this->TargetNameSO);
       cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
                                          "Create library symlink " + targetOutput,
