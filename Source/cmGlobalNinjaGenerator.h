@@ -111,6 +111,7 @@ public:
                         const std::string& comment = "",
                         const std::string& depfile = "",
                         bool restat = false,
+                        bool generator = false,
                         const cmNinjaVars& variables = cmNinjaVars());
 
   /**
@@ -212,6 +213,7 @@ public:
                const std::string& comment = "",
                const std::string& depfile = "",
                bool restat = false,
+               bool generator = false,
                const cmNinjaVars& variables = cmNinjaVars());
 
   bool HasRule(const std::string& name);

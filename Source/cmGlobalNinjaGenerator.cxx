@@ -221,6 +221,7 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
                                        const std::string& comment,
                                        const std::string& depfile,
                                        bool restat,
+                                       bool generator,
                                        const cmNinjaVars& variables)
 {
   // Make sure the rule has a name.
@@ -268,6 +269,12 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
     {
     cmGlobalNinjaGenerator::Indent(os, 1);
     os << "restat = 1\n";
+    }
+
+  if(generator)
+    {
+    cmGlobalNinjaGenerator::Indent(os, 1);
+    os << "generator = 1\n";
     }
 
   // Write the variables bound to this build statement.
@@ -459,6 +466,7 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                      const std::string& comment,
                                      const std::string& depfile,
                                      bool restat,
+                                     bool generator,
                                      const cmNinjaVars& variables)
 {
   // Do not add twice the same rule.
@@ -473,6 +481,7 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                     comment,
                                     depfile,
                                     restat,
+                                    generator,
                                     variables);
 }
 
@@ -643,7 +652,10 @@ void cmGlobalNinjaGenerator::WriteTargetRebuildManifest(std::ostream& os)
             "RERUN_CMAKE",
             cmd.str(),
             "Re-running CMake...",
-            "Rule for re-running cmake.");
+            "Rule for re-running cmake.",
+            /*depfile=*/ "",
+            /*restat=*/ false,
+            /*generator=*/ true);
 
   cmNinjaDeps implicitDeps;
   for (std::vector<cmLocalGenerator *>::const_iterator i =
