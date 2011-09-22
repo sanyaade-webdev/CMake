@@ -167,6 +167,7 @@ cmNinjaNormalTargetGenerator
       {
       this->GetLocalGenerator()->ExpandRuleVariables(*i, vars);
       }
+    linkCmds.insert(linkCmds.begin(), "$PRE_LINK");
     linkCmds.push_back("$POST_BUILD");
     std::string linkCmd =
       this->GetLocalGenerator()->BuildCommandLine(linkCmds);
@@ -316,14 +317,35 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
                                                   this->GetConfigName());
   vars["SONAME"] = this->TargetNameSO;
 
-  std::vector<cmCustomCommand> &postBuildCmds =
-    this->GetTarget()->GetPostBuildCommands();
-  std::vector<std::string> postBuildCmdLines;
-  for (std::vector<cmCustomCommand>::const_iterator ci = postBuildCmds.begin();
-       ci != postBuildCmds.end(); ++ci) {
-    this->GetLocalGenerator()->AppendCustomCommandLines(&*ci,
-                                                        postBuildCmdLines);
+  std::vector<cmCustomCommand> *cmdLists[3] = {
+    &this->GetTarget()->GetPreBuildCommands(),
+    &this->GetTarget()->GetPreLinkCommands(),
+    &this->GetTarget()->GetPostBuildCommands()
+  };
+
+  std::vector<std::string> preLinkCmdLines, postBuildCmdLines;
+  std::vector<std::string> *cmdLineLists[3] = {
+    &preLinkCmdLines,
+    &preLinkCmdLines,
+    &postBuildCmdLines
+  };
+
+  for (unsigned i = 0; i != 3; ++i) {
+    for (std::vector<cmCustomCommand>::const_iterator ci = cmdLists[i]->begin();
+         ci != cmdLists[i]->end(); ++ci) {
+      this->GetLocalGenerator()->AppendCustomCommandLines(&*ci,
+                                                          *cmdLineLists[i]);
+    }
   }
+
+  // If we have any PRE_LINK commands, we need to go back to HOME_OUTPUT for
+  // the link commands.
+  if (!preLinkCmdLines.empty())
+    preLinkCmdLines.push_back(std::string("cd ") +
+                              this->GetMakefile()->GetHomeOutputDirectory());
+
+  vars["PRE_LINK"] =
+    this->GetLocalGenerator()->BuildCommandLine(preLinkCmdLines);
   vars["POST_BUILD"] =
     this->GetLocalGenerator()->BuildCommandLine(postBuildCmdLines);
 
