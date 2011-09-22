@@ -131,7 +131,7 @@ public:
   /**
    * Returns a string that has whitespace removed from the start and the end.
    */
-  static kwsys_stl::string Trimmed(const kwsys_stl::string& s);
+  static kwsys_stl::string TrimWhitespace(const kwsys_stl::string& s);
 
   /**
    * Count char in string

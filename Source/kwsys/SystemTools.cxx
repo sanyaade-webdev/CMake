@@ -1196,28 +1196,18 @@ kwsys_stl::string SystemTools::UpperCase(const kwsys_stl::string& s)
 }
 
 // Returns a string that has whitespace removed from the start and the end.
-kwsys_stl::string SystemTools::Trimmed(const kwsys_stl::string& s)
+kwsys_stl::string SystemTools::TrimWhitespace(const kwsys_stl::string& s)
 {
-  kwsys_stl::string::const_iterator i = s.begin();
-  while(i != s.end() && *i == ' ')
-    ++i;
-  kwsys_stl::string::const_iterator start = i;
+  kwsys_stl::string::const_iterator start = s.begin();
+  while(start != s.end() && *start == ' ')
+    ++start;
+  if (start == s.end())
+    return "";
 
-  kwsys_stl::string::const_iterator stop = i;
-  while(i != s.end())
-    {
-    if(*i != ' ')
-      stop = i;
-    ++i;
-    }
-
-  if(start != stop)
-    ++stop;
-
-  kwsys_stl::string n;
-  n.resize(stop - start);
-  copy(start, stop, n.begin());
-  return n;
+  kwsys_stl::string::const_iterator stop = s.end()-1;
+  while(*stop == ' ')
+    --stop;
+  return kwsys_stl::string(start, stop+1);
 }
 
 // Count char in string

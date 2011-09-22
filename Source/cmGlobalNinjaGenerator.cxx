@@ -296,7 +296,7 @@ void cmGlobalNinjaGenerator::WriteVariable(std::ostream& os,
     }
 
   // Do not add a variable if the value is empty.
-  std::string val = cmSystemTools::Trimmed(value);
+  std::string val = cmSystemTools::TrimWhitespace(value);
   if(val.empty())
     {
     return;
