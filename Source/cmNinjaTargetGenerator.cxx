@@ -412,6 +412,10 @@ cmNinjaTargetGenerator
       this->Objects.push_back(this->GetSourceFilePath(source));
     return;
   }
+
+  if (source->GetPropertyAsBool("HEADER_FILE_ONLY"))
+    return;
+
   std::string rule = this->LanguageCompilerRule(language);
 
   cmNinjaDeps outputs;
