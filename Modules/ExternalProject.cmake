@@ -833,6 +833,12 @@ function(ExternalProject_Add_StepTargets name)
   foreach(step ${steps})
     add_custom_target(${name}-${step}
       DEPENDS ${stamp_dir}${cfgdir}/${name}-${step})
+
+    # Depend on other external projects (target-level).
+    get_property(deps TARGET ${name} PROPERTY _EP_DEPENDS)
+    foreach(arg IN LISTS deps)
+      add_dependencies(${name}-${step} ${arg})
+    endforeach()
   endforeach()
 endfunction(ExternalProject_Add_StepTargets)
 
@@ -1453,6 +1459,7 @@ function(ExternalProject_Add name)
   # other external project targets.
   add_custom_command(
     OUTPUT ${cmf_dir}${cfgdir}/${name}-complete
+           ${stamp_dir}${cfgdir}/${name}-done
     COMMENT "Completed '${name}'"
     COMMAND ${CMAKE_COMMAND} -E make_directory ${cmf_dir}${cfgdir}
     COMMAND ${CMAKE_COMMAND} -E touch ${cmf_dir}${cfgdir}/${name}-complete
