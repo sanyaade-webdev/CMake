@@ -450,8 +450,15 @@ std::string cmGlobalNinjaGenerator
     }
   if(targetName)
     {
-    makeCommand += " ";
-    makeCommand += targetName;
+    if(strcmp(targetName, "clean") == 0)
+      {
+      makeCommand += " -t clean";
+      }
+    else
+      {
+      makeCommand += " ";
+      makeCommand += targetName;
+      }
     }
 
   return makeCommand;
