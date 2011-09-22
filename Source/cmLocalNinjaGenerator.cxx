@@ -54,7 +54,9 @@ void cmLocalNinjaGenerator::Generate()
       {
       tg->Generate();
       // Add the target to "all" if required.
-      if (!t->second.GetPropertyAsBool("EXCLUDE_FROM_ALL"))
+      if (!this->GetGlobalNinjaGenerator()->IsExcluded(
+            this->GetGlobalNinjaGenerator()->LocalGenerators[0],
+            t->second))
         this->AddDependencyToAll(tg->GetTargetName());
       delete tg;
       }
