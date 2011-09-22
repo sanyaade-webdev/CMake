@@ -140,18 +140,6 @@ cmLocalNinjaGenerator
 //----------------------------------------------------------------------------
 // Virtual protected methods.
 
-// Implemented only in cmLocalVisualStudio6Generator.
-// Used in:
-//   Source/cmLocalGenerator.cxx
-//   Source/cmLocalVisualStudio6Generator.cxx
-bool cmLocalNinjaGenerator::CheckDefinition(std::string const& define) const
-{
-
-  bool ret = cmLocalGenerator::CheckDefinition(define);
-
-  return ret;
-}
-
 std::string cmLocalNinjaGenerator::ConvertToLinkReference(std::string const& lib)
 {
   return this->Convert(lib.c_str(), HOME_OUTPUT, SHELL);

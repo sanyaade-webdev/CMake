@@ -68,10 +68,6 @@ public:
   { return this->HomeRelativeOutputPath; }
 
 protected:
-
-  /// Overloaded methods. @see cmLocalGenerator::CheckDefinition()
-  virtual bool CheckDefinition(std::string const& define) const;
-
   virtual std::string ConvertToLinkReference(std::string const& lib);
   virtual std::string ConvertToIncludeReference(std::string const& path);
 
