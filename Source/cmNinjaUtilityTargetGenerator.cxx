@@ -44,8 +44,7 @@ void cmNinjaUtilityTargetGenerator::Generate() {
       }
     }
 
-  std::set<cmStdString> const& utils = this->GetTarget()->GetUtilities();
-  deps.insert(deps.end(), utils.begin(), utils.end());
+  this->GetLocalGenerator()->AppendTargetDepends(this->GetTarget(), deps);
 
   if (commands.empty()) {
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
