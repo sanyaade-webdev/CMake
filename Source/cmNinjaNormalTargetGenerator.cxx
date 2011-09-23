@@ -71,7 +71,7 @@ void cmNinjaNormalTargetGenerator::WriteLanguagesRules()
   cmGlobalNinjaGenerator::WriteDivider(this->GetRulesFileStream());
   this->GetRulesFileStream()
     << "# Rules for each languages for "
-    << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
+    << cmTarget::GetTargetTypeName(this->GetTarget()->GetType())
     << " target "
     << this->GetTargetName()
     << "\n\n";
@@ -105,7 +105,7 @@ cmNinjaNormalTargetGenerator
 {
   return std::string(this->TargetLinkLanguage)
     + "_"
-    + cmTarget::TargetTypeNames(this->GetTarget()->GetType())
+    + cmTarget::GetTargetTypeName(this->GetTarget()->GetType())
     + "_LINKER";
 }
 
@@ -282,7 +282,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
   cmGlobalNinjaGenerator::WriteDivider(this->GetBuildFileStream());
   this->GetBuildFileStream()
     << "# Link build statements for "
-    << cmTarget::TargetTypeNames(this->GetTarget()->GetType())
+    << cmTarget::GetTargetTypeName(this->GetTarget()->GetType())
     << " target "
     << this->GetTargetName()
     << "\n\n";
