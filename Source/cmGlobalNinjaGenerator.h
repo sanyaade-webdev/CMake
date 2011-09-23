@@ -87,9 +87,9 @@ public:
                               const std::string& comment,
                               const cmNinjaDeps& outputs,
                               const cmNinjaDeps& explicitDeps,
-                              const cmNinjaDeps& implicitDeps,
-                              const cmNinjaDeps& orderOnlyDeps,
-                              const cmNinjaVars& variables);
+                              const cmNinjaDeps& implicitDeps = cmNinjaDeps(),
+                              const cmNinjaDeps& orderOnlyDeps = cmNinjaDeps(),
+                              const cmNinjaVars& variables = cmNinjaVars());
 
   void WriteCustomCommandBuild(const std::string& command,
                                const std::string& description,
@@ -231,6 +231,8 @@ private:
 
   // In order to access the SeenCustomCommand() function.
   friend class cmNinjaTargetGenerator;
+  friend class cmNinjaNormalTargetGenerator;
+  friend class cmNinjaUtilityTargetGenerator;
 
 private:
   void OpenBuildFileStream();
@@ -242,9 +244,16 @@ private:
   /// Write the common disclaimer text at the top of each build file.
   void WriteDisclaimer(std::ostream& os);
 
-  void AddDependencyToAll(const std::string& dependency);
+  void AddDependencyToAll(cmTarget* target);
 
   void WriteAssumedSourceDependencies(std::ostream& os);
+
+  void AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs);
+  void AppendTargetDepends(cmTarget* target, cmNinjaDeps& outputs);
+
+  void AddTargetAlias(const std::string& alias, cmTarget* target);
+  void WriteTargetAliases(std::ostream& os);
+
   void WriteBuiltinTargets(std::ostream& os);
   void WriteTargetAll(std::ostream& os);
   void WriteTargetRebuildManifest(std::ostream& os);
@@ -267,7 +276,6 @@ private:
     return this->CustomCommandOutputs.find(output) !=
            this->CustomCommandOutputs.end();
   }
-
 
   void AddAssumedSourceDependencies(const std::string &source,
                                     const cmNinjaDeps &deps) {
@@ -304,6 +312,9 @@ private:
 
   /// The mapping from source file to assumed dependencies.
   std::map<std::string, std::set<std::string> > AssumedSourceDependencies;
+
+  typedef std::map<std::string, cmTarget*> TargetAliasMap;
+  TargetAliasMap TargetAliases;
 };
 
 #endif // ! cmGlobalNinjaGenerator_h

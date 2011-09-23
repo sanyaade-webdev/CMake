@@ -274,47 +274,6 @@ cmNinjaTargetGenerator
   path += name;
   return path;
 }
-void
-cmNinjaTargetGenerator
-::WriteTargetBuild(const std::string& outputName,
-                   const std::string& outputPath)
-{
-  cmNinjaDeps emptyDeps;
-  cmNinjaVars emptyVars;
-
-  if(outputName != outputPath)
-    {
-    std::string comment = "Shortcut target for the output name.";
-    cmNinjaDeps outputs;
-    outputs.push_back(outputName);
-    cmNinjaDeps deps;
-    deps.push_back(outputPath);
-    cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
-                                            comment,
-                                            outputs,
-                                            deps,
-                                            emptyDeps,
-                                            emptyDeps,
-                                            emptyVars);
-    }
-
-  std::string targetName = this->GetTargetName();
-  if(targetName != outputName)
-    {
-    std::string comment = "Shortcut target for the target name.";
-    cmNinjaDeps outputs;
-    outputs.push_back(targetName);
-    cmNinjaDeps deps;
-    deps.push_back(outputName);
-    cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
-                                            comment,
-                                            outputs,
-                                            deps,
-                                            emptyDeps,
-                                            emptyDeps,
-                                            emptyVars);
-    }
-}
 
 std::string cmNinjaTargetGenerator::GetTargetName() const
 {

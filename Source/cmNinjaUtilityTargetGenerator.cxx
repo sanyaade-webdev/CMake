@@ -13,7 +13,7 @@ cmNinjaUtilityTargetGenerator::~cmNinjaUtilityTargetGenerator() {}
 
 void cmNinjaUtilityTargetGenerator::Generate() {
   std::vector<std::string> commands;
-  cmNinjaDeps deps;
+  cmNinjaDeps deps, outputs;
 
   const std::vector<cmCustomCommand> *cmdLists[2] = {
     &this->GetTarget()->GetPreBuildCommands(),
@@ -44,12 +44,13 @@ void cmNinjaUtilityTargetGenerator::Generate() {
       }
     }
 
+  this->GetLocalGenerator()->AppendTargetOutputs(this->GetTarget(), outputs);
   this->GetLocalGenerator()->AppendTargetDepends(this->GetTarget(), deps);
 
   if (commands.empty()) {
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
                                             "Utility command for " + this->GetTargetName(),
-                                            cmNinjaDeps(1, this->GetTargetName()),
+                                            outputs,
                                             deps,
                                             cmNinjaDeps(),
                                             cmNinjaDeps(),
@@ -86,10 +87,13 @@ void cmNinjaUtilityTargetGenerator::Generate() {
 
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
                                             "",
-                                            cmNinjaDeps(1, this->GetTargetName()),
+                                            outputs,
                                             cmNinjaDeps(1, utilCommandName),
                                             cmNinjaDeps(),
                                             cmNinjaDeps(),
                                             cmNinjaVars());
   }
+
+  this->GetGlobalGenerator()->AddTargetAlias(this->GetTargetName(),
+                                             this->GetTarget());
 }

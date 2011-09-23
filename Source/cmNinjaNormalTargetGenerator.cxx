@@ -390,6 +390,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
     }
   }
 
-  // Write a shortcut rule with the target name.
-  this->WriteTargetBuild(this->TargetNameOut, targetOutput);
+  // Add aliases for the file name and the target name.
+  this->GetGlobalGenerator()->AddTargetAlias(this->TargetNameOut, this->GetTarget());
+  this->GetGlobalGenerator()->AddTargetAlias(this->GetTargetName(), this->GetTarget());
 }

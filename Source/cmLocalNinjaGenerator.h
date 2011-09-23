@@ -72,6 +72,8 @@ protected:
   virtual std::string ConvertToIncludeReference(std::string const& path);
 
 private:
+  friend class cmGlobalNinjaGenerator;
+
   // In order to access to protected member of the local generator.
   friend class cmNinjaTargetGenerator;
   friend class cmNinjaNormalTargetGenerator;
@@ -84,7 +86,6 @@ private:
   void WriteBuildFileTop();
   void WriteProjectHeader(std::ostream& os);
   void WriteNinjaFilesInclusion(std::ostream& os);
-  void AddDependencyToAll(const std::string& dependency);
   void WriteProcessedMakefile(std::ostream& os);
 
   void SetConfigName();

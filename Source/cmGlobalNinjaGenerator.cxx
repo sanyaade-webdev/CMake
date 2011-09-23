@@ -379,6 +379,7 @@ void cmGlobalNinjaGenerator::Generate()
   this->cmGlobalGenerator::Generate();
 
   this->WriteAssumedSourceDependencies(*this->BuildFileStream);
+  this->WriteTargetAliases(*this->BuildFileStream);
   this->WriteBuiltinTargets(*this->BuildFileStream);
 
   this->CloseRulesFileStream();
@@ -599,9 +600,9 @@ void cmGlobalNinjaGenerator::WriteDisclaimer(std::ostream& os)
     << cmVersion::GetMinorVersion() << "\n\n";
 }
 
-void cmGlobalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
+void cmGlobalNinjaGenerator::AddDependencyToAll(cmTarget* target)
 {
-  this->AllDependencies.push_back(dependency);
+  this->AppendTargetOutputs(target, this->AllDependencies);
 }
 
 void cmGlobalNinjaGenerator::WriteAssumedSourceDependencies(std::ostream& os)
@@ -613,6 +614,97 @@ void cmGlobalNinjaGenerator::WriteAssumedSourceDependencies(std::ostream& os)
                             "Assume dependencies for generated source file.",
                             cmNinjaDeps(1, i->first),
                             cmNinjaDeps(i->second.begin(), i->second.end()));
+  }
+}
+
+void
+cmGlobalNinjaGenerator
+::AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) {
+  std::string name, dir;
+  const char* configName =
+    target->GetMakefile()->GetDefinition("CMAKE_BUILD_TYPE");
+
+  switch (target->GetType()) {
+  case cmTarget::EXECUTABLE:
+  case cmTarget::SHARED_LIBRARY:
+  case cmTarget::STATIC_LIBRARY:
+  case cmTarget::MODULE_LIBRARY:
+    name = target->GetFullName(configName);
+    dir = target->GetDirectory(configName);
+    break;
+
+  case cmTarget::UTILITY:
+    dir = target->GetMakefile()->GetStartOutputDirectory();
+  case cmTarget::GLOBAL_TARGET:
+    // dir is always "" for GLOBAL_TARGETs so that we use the target in HOME
+    name = target->GetName();
+    break;
+
+  default:
+    return;
+  }
+
+  std::string path =
+    static_cast<cmLocalNinjaGenerator *>(this->LocalGenerators[0])
+      ->ConvertToNinjaPath(dir.c_str());
+  if (path.empty() || path == ".")
+    outputs.push_back(name);
+  else {
+    path += "/";
+    path += name;
+    outputs.push_back(path);
+  }
+}
+
+void
+cmGlobalNinjaGenerator
+::AppendTargetDepends(cmTarget* target, cmNinjaDeps& outputs) {
+  if (target->GetType() == cmTarget::GLOBAL_TARGET) {
+    // Global targets only depend on other utilities, which may not appear in
+    // the TargetDepends set (e.g. "all").
+    std::set<cmStdString> const& utils = target->GetUtilities();
+    outputs.insert(outputs.end(), utils.begin(), utils.end());
+  } else {
+    cmTargetDependSet const& targetDeps = this->GetTargetDirectDepends(*target);
+    for (cmTargetDependSet::const_iterator i = targetDeps.begin();
+         i != targetDeps.end(); ++i) {
+      this->AppendTargetOutputs(*i, outputs);
+    }
+  }
+}
+
+void cmGlobalNinjaGenerator::AddTargetAlias(const std::string& alias,
+                                            cmTarget* target) {
+  cmNinjaDeps outputs;
+  this->AppendTargetOutputs(target, outputs);
+  // Mark the target's outputs as ambiguous to ensure that no other target uses
+  // the output as an alias.
+  for (cmNinjaDeps::iterator i = outputs.begin(); i != outputs.end(); ++i)
+    TargetAliases[*i] = 0;
+
+  // Insert the alias into the map.  If the alias was already present in the
+  // map and referred to another target, mark it as ambiguous.
+  std::pair<TargetAliasMap::iterator, bool> newAlias =
+    TargetAliases.insert(make_pair(alias, target));
+  if (newAlias.second && newAlias.first->second != target)
+    newAlias.first->second = 0;
+}
+
+void cmGlobalNinjaGenerator::WriteTargetAliases(std::ostream& os)
+{
+  for (TargetAliasMap::iterator i = TargetAliases.begin();
+       i != TargetAliases.end(); ++i) {
+    // Don't write ambiguous aliases.
+    if (!i->second)
+      continue;
+
+    cmNinjaDeps deps;
+    this->AppendTargetOutputs(i->second, deps);
+
+    cmGlobalNinjaGenerator::WritePhonyBuild(os,
+                                            "Target alias.",
+                                            cmNinjaDeps(1, i->first),
+                                            deps);
   }
 }
 
@@ -628,19 +720,13 @@ void cmGlobalNinjaGenerator::WriteBuiltinTargets(std::ostream& os)
 
 void cmGlobalNinjaGenerator::WriteTargetAll(std::ostream& os)
 {
-  cmNinjaDeps emptyDeps;
-  cmNinjaVars emptyVars;
-
   cmNinjaDeps outputs;
   outputs.push_back("all");
 
   cmGlobalNinjaGenerator::WritePhonyBuild(os,
                                           "The main all target.",
                                           outputs,
-                                          this->AllDependencies,
-                                          emptyDeps,
-                                          emptyDeps,
-                                          emptyVars);
+                                          this->AllDependencies);
 
   cmGlobalNinjaGenerator::WriteDefault(os,
                                        outputs,

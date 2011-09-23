@@ -57,7 +57,7 @@ void cmLocalNinjaGenerator::Generate()
       if (!this->GetGlobalNinjaGenerator()->IsExcluded(
             this->GetGlobalNinjaGenerator()->LocalGenerators[0],
             t->second))
-        this->AddDependencyToAll(tg->GetTargetName());
+        this->GetGlobalNinjaGenerator()->AddDependencyToAll(&t->second);
       delete tg;
       }
     }
@@ -229,11 +229,6 @@ void cmLocalNinjaGenerator::SetConfigName()
     }
 }
 
-void cmLocalNinjaGenerator::AddDependencyToAll(const std::string& dependency)
-{
-  this->GetGlobalNinjaGenerator()->AddDependencyToAll(dependency);
-}
-
 void cmLocalNinjaGenerator::WriteProcessedMakefile(std::ostream& os)
 {
   cmGlobalNinjaGenerator::WriteDivider(os);
@@ -257,38 +252,13 @@ std::string cmLocalNinjaGenerator::ConvertToNinjaPath(const char *path)
 void
 cmLocalNinjaGenerator
 ::AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) {
-  switch (target->GetType()) {
-  case cmTarget::EXECUTABLE:
-  case cmTarget::SHARED_LIBRARY:
-  case cmTarget::STATIC_LIBRARY: {
-    std::string name = target->GetFullName(this->GetConfigName());
-    std::string dir = target->GetDirectory(this->GetConfigName());
-    std::string path = ConvertToNinjaPath(dir.c_str());
-    if (path.empty() || path == ".")
-      outputs.push_back(name);
-    else {
-      path += "/";
-      path += name;
-      outputs.push_back(path);
-    }
-    break;
-  }
-
-  case cmTarget::UTILITY:
-    outputs.push_back(target->GetName());
-    break;
-  }
+  this->GetGlobalNinjaGenerator()->AppendTargetOutputs(target, outputs);
 }
 
 void
 cmLocalNinjaGenerator
 ::AppendTargetDepends(cmTarget* target, cmNinjaDeps& outputs) {
-  cmTargetDependSet const& targetDeps =
-    this->GetGlobalGenerator()->GetTargetDirectDepends(*target);
-  for (cmTargetDependSet::const_iterator i = targetDeps.begin();
-       i != targetDeps.end(); ++i) {
-    this->AppendTargetOutputs(*i, outputs);
-  }
+  this->GetGlobalNinjaGenerator()->AppendTargetDepends(target, outputs);
 }
 
 void cmLocalNinjaGenerator::AppendCustomCommandDeps(const cmCustomCommand *cc, cmNinjaDeps &ninjaDeps) {
