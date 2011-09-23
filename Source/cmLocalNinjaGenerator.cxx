@@ -274,19 +274,9 @@ cmLocalNinjaGenerator
     break;
   }
 
-  case cmTarget::UTILITY: {
-    const std::vector<cmSourceFile*>& sources = target->GetSourceFiles();
-    for(std::vector<cmSourceFile*>::const_iterator source = sources.begin();
-        source != sources.end(); ++source) {
-      if(cmCustomCommand* cc = (*source)->GetCustomCommand()) {
-        if (!cc->GetCommandLines().empty()) {
-          const std::vector<std::string>& ccoutputs = cc->GetOutputs();
-          std::transform(ccoutputs.begin(), ccoutputs.end(),
-                         std::back_inserter(outputs), MapToNinjaPath());
-        }
-      }
-    }
-  }
+  case cmTarget::UTILITY:
+    outputs.push_back(target->GetName());
+    break;
   }
 }
 
