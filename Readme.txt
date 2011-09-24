@@ -1,3 +1,19 @@
+Special note for ninja-generator branch
+=======================================
+
+The Ninja generator on this branch is currently only compatible with my
+'outputs-ready' branch of Ninja, which is available from GitHub here:
+
+https://github.com/pcc/ninja/tree/outputs-ready
+
+This implements the following CMake requirements:
+ - an alternative semantics for order-only dependencies
+ - restat rules
+ - generator rules
+I'm planning to propose these changes for upstream Ninja soon.
+
+--------------------------------------------------------------
+
 This is CMake, the cross-platform, open-source make system.
 CMake is distributed under the BSD License, see Copyright.txt.
 For documentation see the Docs/ directory once you have built CMake
