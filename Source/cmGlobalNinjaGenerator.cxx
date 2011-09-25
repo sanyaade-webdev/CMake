@@ -692,6 +692,9 @@ void cmGlobalNinjaGenerator::AddTargetAlias(const std::string& alias,
 
 void cmGlobalNinjaGenerator::WriteTargetAliases(std::ostream& os)
 {
+  cmGlobalNinjaGenerator::WriteDivider(os);
+  os << "# Target aliases.\n\n";
+
   for (TargetAliasMap::iterator i = TargetAliases.begin();
        i != TargetAliases.end(); ++i) {
     // Don't write ambiguous aliases.
@@ -702,7 +705,7 @@ void cmGlobalNinjaGenerator::WriteTargetAliases(std::ostream& os)
     this->AppendTargetOutputs(i->second, deps);
 
     cmGlobalNinjaGenerator::WritePhonyBuild(os,
-                                            "Target alias.",
+                                            "",
                                             cmNinjaDeps(1, i->first),
                                             deps);
   }
