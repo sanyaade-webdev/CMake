@@ -45,13 +45,15 @@ public:
   virtual std::string GetTargetDirectory(cmTarget const& target) const;
 
 public:
-  cmGlobalNinjaGenerator* GetGlobalNinjaGenerator() const;
+  const cmGlobalNinjaGenerator* GetGlobalNinjaGenerator() const;
+  cmGlobalNinjaGenerator* GetGlobalNinjaGenerator();
 
   /**
    * Shortcut to get the cmake instance throw the global generator.
    * @return an instance of the cmake object.
    */
-  cmake* GetCMakeInstance() const;
+  const cmake* GetCMakeInstance() const;
+  cmake* GetCMakeInstance();
 
   const char* GetConfigName() const
   { return this->ConfigName.c_str(); }

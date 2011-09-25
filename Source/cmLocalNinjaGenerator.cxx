@@ -102,7 +102,13 @@ std::string cmLocalNinjaGenerator
 //----------------------------------------------------------------------------
 // Non-virtual public methods.
 
-cmGlobalNinjaGenerator* cmLocalNinjaGenerator::GetGlobalNinjaGenerator() const
+const cmGlobalNinjaGenerator*
+cmLocalNinjaGenerator::GetGlobalNinjaGenerator() const
+{
+  return static_cast<const cmGlobalNinjaGenerator*>(this->GetGlobalGenerator());
+}
+
+cmGlobalNinjaGenerator* cmLocalNinjaGenerator::GetGlobalNinjaGenerator()
 {
   return static_cast<cmGlobalNinjaGenerator*>(this->GetGlobalGenerator());
 }
@@ -166,7 +172,12 @@ cmGeneratedFileStream& cmLocalNinjaGenerator::GetRulesFileStream() const
   return *this->GetGlobalNinjaGenerator()->GetRulesFileStream();
 }
 
-cmake* cmLocalNinjaGenerator::GetCMakeInstance() const
+const cmake* cmLocalNinjaGenerator::GetCMakeInstance() const
+{
+  return this->GetGlobalGenerator()->GetCMakeInstance();
+}
+
+cmake* cmLocalNinjaGenerator::GetCMakeInstance()
 {
   return this->GetGlobalGenerator()->GetCMakeInstance();
 }
