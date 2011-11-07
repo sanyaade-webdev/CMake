@@ -224,8 +224,10 @@ cmNinjaNormalTargetGenerator
         }
       }
 
-      // We have archive link commands set.
+      // We have archive link commands set.  First, delete the existing archive.
       std::vector<std::string> linkCmds;
+      linkCmds.push_back("rm -f $out");
+
       {
       std::string linkCmdVar = "CMAKE_";
       linkCmdVar += this->TargetLinkLanguage;
