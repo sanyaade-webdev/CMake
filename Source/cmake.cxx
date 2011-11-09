@@ -51,14 +51,6 @@
 #  define CMAKE_USE_ECLIPSE
 #endif
 
-// Only build Ninja generator on non-windows platforms (until Ninja is ported
-// to Windows) and when not bootstrapping cmake.
-#if !defined(_WIN32)
-#  if defined(CMAKE_BUILD_WITH_CMAKE)
-#    define CMAKE_USE_NINJA
-#  endif
-#endif
-
 #if defined(__MINGW32__) && !defined(CMAKE_BUILD_WITH_CMAKE)
 # define CMAKE_BOOT_MINGW
 #endif

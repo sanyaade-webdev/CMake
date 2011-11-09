@@ -186,9 +186,6 @@ SET(SRCS
   cmGlobalGenerator.h
   cmGlobalUnixMakefileGenerator3.cxx
   cmGlobalUnixMakefileGenerator3.h
-  cmGlobalNinjaGenerator.cxx
-  cmGlobalNinjaGenerator.h
-  cmNinjaTypes.h
   cmGraphAdjacencyList.h
   cmGraphVizWriter.cxx
   cmGraphVizWriter.h
@@ -209,14 +206,6 @@ SET(SRCS
   cmLocalGenerator.cxx
   cmLocalGenerator.h
   cmLocalUnixMakefileGenerator3.cxx
-  cmLocalNinjaGenerator.cxx
-  cmLocalNinjaGenerator.h
-  cmNinjaTargetGenerator.cxx
-  cmNinjaTargetGenerator.h
-  cmNinjaNormalTargetGenerator.cxx
-  cmNinjaNormalTargetGenerator.h
-  cmNinjaUtilityTargetGenerator.cxx
-  cmNinjaUtilityTargetGenerator.h
   cmMakeDepend.cxx
   cmMakeDepend.h
   cmMakefile.cxx
@@ -356,6 +345,24 @@ IF (WIN32)
       )
   ENDIF(NOT UNIX)
 ENDIF (WIN32)
+
+# Ninja only works on UNIX.
+IF(UNIX)
+  SET(SRCS ${SRCS}
+    cmGlobalNinjaGenerator.cxx
+    cmGlobalNinjaGenerator.h
+    cmNinjaTypes.h
+    cmLocalNinjaGenerator.cxx
+    cmLocalNinjaGenerator.h
+    cmNinjaTargetGenerator.cxx
+    cmNinjaTargetGenerator.h
+    cmNinjaNormalTargetGenerator.cxx
+    cmNinjaNormalTargetGenerator.h
+    cmNinjaUtilityTargetGenerator.cxx
+    cmNinjaUtilityTargetGenerator.h
+    )
+  ADD_DEFINITIONS(-DCMAKE_USE_NINJA)
+ENDIF(UNIX)
 
 # create a library used by the command line and the GUI
 ADD_LIBRARY(CMakeLib ${SRCS})
