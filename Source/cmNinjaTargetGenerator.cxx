@@ -84,22 +84,19 @@ const char* cmNinjaTargetGenerator::GetConfigName() const
   return this->LocalGenerator->ConfigName.c_str();
 }
 
-// TODO(Nicolas Despres): Picked up from cmMakefileTargetGenerator.
-// Refactor it.
+// TODO: Picked up from cmMakefileTargetGenerator.  Refactor it.
 const char* cmNinjaTargetGenerator::GetFeature(const char* feature)
 {
   return this->Target->GetFeature(feature, this->GetConfigName());
 }
 
-// TODO(Nicolas Despres): Picked up from cmMakefileTargetGenerator.
-// Refactor it.
+// TODO: Picked up from cmMakefileTargetGenerator.  Refactor it.
 bool cmNinjaTargetGenerator::GetFeatureAsBool(const char* feature)
 {
   return cmSystemTools::IsOn(this->GetFeature(feature));
 }
 
-// TODO(Nicolas Despres): Picked up from cmMakefileTargetGenerator.
-// Refactor it.
+// TODO: Picked up from cmMakefileTargetGenerator.  Refactor it.
 void cmNinjaTargetGenerator::AddFeatureFlags(std::string& flags,
                                              const char* lang)
 {
@@ -112,7 +109,7 @@ void cmNinjaTargetGenerator::AddFeatureFlags(std::string& flags,
     }
 }
 
-// TODO(Nicolas Despres): Most of the code is picked up from
+// TODO: Most of the code is picked up from
 // void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink),
 // void cmMakefileTargetGenerator::WriteTargetLanguageFlags()
 // Refactor it.
@@ -129,7 +126,7 @@ cmNinjaTargetGenerator::ComputeFlagsForObject(cmSourceFile *source,
                                                   language.c_str(),
                                                   this->GetConfigName());
 
-  // TODO(Nicolas Despres): Will see later for the Fortran support.
+  // TODO: Fortran support.
   // // Fortran-specific flags computed for this target.
   // if(*l == "Fortran")
   //   {
@@ -143,7 +140,7 @@ cmNinjaTargetGenerator::ComputeFlagsForObject(cmSourceFile *source,
   this->GetLocalGenerator()->AddSharedFlags(flags, language.c_str(), shared);
   }
 
-  // TODO(Nicolas Despres): Handle response file.
+  // TODO: Handle response file.
   // Add include directory flags.
   {
   std::string includeFlags =
@@ -160,14 +157,14 @@ cmNinjaTargetGenerator::ComputeFlagsForObject(cmSourceFile *source,
   this->LocalGenerator->AppendFlags(flags,
                                     source->GetProperty("COMPILE_FLAGS"));
 
-  // TODO(Nicolas Despres): Handle Apple frameworks.
+  // TODO: Handle Apple frameworks.
   // Add include directory flags.
   // this->LocalGenerator->AppendFlags(flags, this->GetFrameworkFlags().c_str());
 
   return flags;
 }
 
-// TODO(Nicolas Despres): Refact with
+// TODO: Refactor with
 // void cmMakefileTargetGenerator::WriteTargetLanguageFlags().
 std::string
 cmNinjaTargetGenerator::

@@ -108,8 +108,7 @@ void cmGlobalNinjaGenerator::WriteBuild(std::ostream& os,
 
   std::ostringstream builds;
 
-  // TODO(Nicolas Despres): Write one file per line when there is multiple
-  // input/output files.
+  // TODO: Better formatting for when there are multiple input/output files.
 
   // Write outputs files.
   builds << "build";
@@ -540,7 +539,6 @@ void cmGlobalNinjaGenerator::CloseBuildFileStream()
     }
   else
     {
-    // TODO(Nicolas Despres): Add the the name of the build filestream.
     cmSystemTools::Error("Build file stream was not open.");
    }
 }
@@ -585,7 +583,6 @@ void cmGlobalNinjaGenerator::CloseRulesFileStream()
     }
   else
     {
-    // TODO(Nicolas Despres): Add the the name of the filestream.
     cmSystemTools::Error("Rules file stream was not open.");
    }
 }

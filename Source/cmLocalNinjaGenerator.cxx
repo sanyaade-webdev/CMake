@@ -26,8 +26,7 @@ cmLocalNinjaGenerator::cmLocalNinjaGenerator()
   , ConfigName("")
   , HomeRelativeOutputPath("")
 {
-  // TODO(Nicolas Despres): Maybe I should set this one to true??
-  this->IsMakefileGenerator = false;
+  this->IsMakefileGenerator = true;
 }
 
 //----------------------------------------------------------------------------
@@ -84,8 +83,7 @@ void cmLocalNinjaGenerator::Configure()
 
 }
 
-// TODO(Nicolas Despres): Picked up from cmLocalUnixMakefileGenerator3.
-// Refactor it.
+// TODO: Picked up from cmLocalUnixMakefileGenerator3.  Refactor it.
 std::string cmLocalNinjaGenerator
 ::GetTargetDirectory(cmTarget const& target) const
 {
@@ -113,8 +111,7 @@ cmGlobalNinjaGenerator* cmLocalNinjaGenerator::GetGlobalNinjaGenerator()
   return static_cast<cmGlobalNinjaGenerator*>(this->GetGlobalGenerator());
 }
 
-// TODO(Nicolas Despres): Picked up from cmLocalUnixMakefileGenerator3.
-// Refactor it.
+// TODO: Picked up from cmLocalUnixMakefileGenerator3.  Refactor it.
 std::string
 cmLocalNinjaGenerator
 ::GetObjectFileName(const cmTarget& target,

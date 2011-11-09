@@ -228,6 +228,7 @@ cmNinjaNormalTargetGenerator
       std::vector<std::string> linkCmds;
       linkCmds.push_back("rm -f $out");
 
+      // TODO: Use ARCHIVE_APPEND for archives over a certain size. 
       {
       std::string linkCmdVar = "CMAKE_";
       linkCmdVar += this->TargetLinkLanguage;
@@ -236,15 +237,6 @@ cmNinjaNormalTargetGenerator
         this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
       linkCmds.push_back(linkCmd);
       }
-      // TODO(Nicolas Despres): I'll see later how to deals with that.
-      // {
-      // std::string linkCmdVar = "CMAKE_";
-      // linkCmdVar += this->TargetLinkLanguage;
-      // linkCmdVar += "_ARCHIVE_APPEND";
-      // const char *linkCmd =
-      //   this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
-      // linkCmds.push_back(linkCmd);
-      // }
       {
       std::string linkCmdVar = "CMAKE_";
       linkCmdVar += this->TargetLinkLanguage;
