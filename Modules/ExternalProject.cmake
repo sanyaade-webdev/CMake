@@ -1456,10 +1456,18 @@ function(ExternalProject_Add name)
   # depends on the 'done' mark so that it rebuilds when this project
   # rebuilds.  It is important that 'done' is not the output of any
   # custom command so that CMake does not propagate build rules to
-  # other external project targets.
+  # other external project targets, which may cause problems during
+  # parallel builds.  However, the Ninja generator needs to see the entire
+  # dependency graph, and can cope with custom commands belonging to
+  # multiple targets, so we add the 'done' mark as an output for Ninja only.
+  set(complete_outputs ${cmf_dir}${cfgdir}/${name}-complete)
+  if(${CMAKE_GENERATOR} MATCHES "Ninja")
+    set(complete_outputs
+        ${complete_outputs} ${stamp_dir}${cfgdir}/${name}-done)
+  endif()
+
   add_custom_command(
-    OUTPUT ${cmf_dir}${cfgdir}/${name}-complete
-           ${stamp_dir}${cfgdir}/${name}-done
+    OUTPUT ${complete_outputs}
     COMMENT "Completed '${name}'"
     COMMAND ${CMAKE_COMMAND} -E make_directory ${cmf_dir}${cfgdir}
     COMMAND ${CMAKE_COMMAND} -E touch ${cmf_dir}${cfgdir}/${name}-complete
