@@ -298,12 +298,20 @@ cmNinjaTargetGenerator
   vars.Language = lang.c_str();
   vars.Source = "$in";
   vars.Object = "$out";
-
-  if (this->GetGlobalGenerator()->GetCMakeInstance()->GetIsInTryCompile())
-    vars.Flags = "$FLAGS";
-  else
-    vars.Flags = "-MMD -MF $out.d $FLAGS";
+  std::string flags = "$FLAGS";
   vars.Defines = "$DEFINES";
+
+  std::string depfile;
+  std::string depfileFlagsName = "CMAKE_DEPFILE_FLAGS_" + language;
+  const char *depfileFlags =
+    this->GetMakefile()->GetDefinition(depfileFlagsName.c_str());
+  if (depfileFlags) {
+    std::string depfileFlagsStr = depfileFlags;
+    depfile = "$out.d";
+    cmSystemTools::ReplaceString(depfileFlagsStr, "<DEPFILE>", depfile.c_str());
+    flags += " " + depfileFlagsStr;
+  }
+  vars.Flags = flags.c_str();
 
   // Rule for compiling object file.
   std::string compileCmdVar = "CMAKE_";
@@ -319,7 +327,6 @@ cmNinjaTargetGenerator
   comment << "Rule for compiling " << language << " files.";
   std::ostringstream description;
   description << "Building " << language << " object $out";
-  std::string depfile = "$out.d";
   this->GetGlobalGenerator()->AddRule(this->LanguageCompilerRule(language),
                                       compileCmd,
                                       description.str(),
