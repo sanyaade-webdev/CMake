@@ -327,6 +327,8 @@ IF(BUILD_TESTING)
       )
 
     IF(${CMAKE_TEST_GENERATOR} MATCHES "Ninja")
+      # The Ninja generator does not create a recursive build system.  Start
+      # from the root directory.
       SET(SubProject_SUBDIR)
     ELSE()
       SET(SubProject_SUBDIR "/foo")
