@@ -71,7 +71,8 @@ protected:
   std::string ComputeFlagsForObject(cmSourceFile *source,
                                     const std::string& language);
 
-  std::string ComputeDefines(cmSourceFile *source, const std::string& language);
+  std::string ComputeDefines(cmSourceFile *source,
+                             const std::string& language);
 
   std::string ConvertToNinjaPath(const char *path) const;
   cmLocalNinjaGenerator::map_to_ninja_path MapToNinjaPath() const {

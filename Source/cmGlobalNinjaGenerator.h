@@ -96,7 +96,7 @@ public:
                                const std::string& comment,
                                const cmNinjaDeps& outputs,
                                const cmNinjaDeps& deps = cmNinjaDeps(),
-                              const cmNinjaDeps& orderOnlyDeps = cmNinjaDeps());
+                             const cmNinjaDeps& orderOnlyDeps = cmNinjaDeps());
 
   /**
    * Write a rule statement named @a name to @a os with the @a comment,
@@ -185,13 +185,23 @@ public:
   // Setup target names
   virtual const char* GetAllTargetName()           const { return "all"; }
   virtual const char* GetInstallTargetName()       const { return "install"; }
-  virtual const char* GetInstallLocalTargetName()  const { return "install/local"; }
-  virtual const char* GetInstallStripTargetName()  const { return "install/strip"; }
+  virtual const char* GetInstallLocalTargetName()  const {
+    return "install/local";
+  }
+  virtual const char* GetInstallStripTargetName()  const {
+    return "install/strip";
+  }
   virtual const char* GetTestTargetName()          const { return "test"; }
   virtual const char* GetPackageTargetName()       const { return "package"; }
-  virtual const char* GetPackageSourceTargetName() const { return "package_source"; }
-  virtual const char* GetEditCacheTargetName()     const { return "edit_cache"; }
-  virtual const char* GetRebuildCacheTargetName()  const { return "rebuild_cache"; }
+  virtual const char* GetPackageSourceTargetName() const {
+    return "package_source";
+  }
+  virtual const char* GetEditCacheTargetName()     const {
+    return "edit_cache";
+  }
+  virtual const char* GetRebuildCacheTargetName()  const {
+    return "rebuild_cache";
+  }
   virtual const char* GetCleanTargetName()         const { return "clean"; }
 
 public:

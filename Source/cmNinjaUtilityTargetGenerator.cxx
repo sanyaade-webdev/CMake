@@ -11,7 +11,8 @@ cmNinjaUtilityTargetGenerator::cmNinjaUtilityTargetGenerator(cmTarget *target)
 
 cmNinjaUtilityTargetGenerator::~cmNinjaUtilityTargetGenerator() {}
 
-void cmNinjaUtilityTargetGenerator::Generate() {
+void cmNinjaUtilityTargetGenerator::Generate()
+{
   std::vector<std::string> commands;
   cmNinjaDeps deps, outputs;
 
@@ -21,8 +22,8 @@ void cmNinjaUtilityTargetGenerator::Generate() {
   };
 
   for (unsigned i = 0; i != 2; ++i) {
-    for (std::vector<cmCustomCommand>::const_iterator ci = cmdLists[i]->begin();
-         ci != cmdLists[i]->end(); ++ci) {
+    for (std::vector<cmCustomCommand>::const_iterator
+         ci = cmdLists[i]->begin(); ci != cmdLists[i]->end(); ++ci) {
       this->GetLocalGenerator()->AppendCustomCommandDeps(&*ci, deps);
       this->GetLocalGenerator()->AppendCustomCommandLines(&*ci, commands);
     }
@@ -49,14 +50,13 @@ void cmNinjaUtilityTargetGenerator::Generate() {
 
   if (commands.empty()) {
     cmGlobalNinjaGenerator::WritePhonyBuild(this->GetBuildFileStream(),
-                                            "Utility command for " + this->GetTargetName(),
+                                            "Utility command for "
+                                            + this->GetTargetName(),
                                             outputs,
-                                            deps,
-                                            cmNinjaDeps(),
-                                            cmNinjaDeps(),
-                                            cmNinjaVars());
+                                            deps);
   } else {
-    std::string command = this->GetLocalGenerator()->BuildCommandLine(commands);
+    std::string command =
+      this->GetLocalGenerator()->BuildCommandLine(commands);
     const char *echoStr = this->GetTarget()->GetProperty("EchoString");
     std::string desc;
     if (echoStr)
@@ -67,9 +67,9 @@ void cmNinjaUtilityTargetGenerator::Generate() {
     // TODO: fix problematic global targets.  For now, search and replace the
     // makefile vars.
     cmSystemTools::ReplaceString(command, "$(CMAKE_SOURCE_DIR)",
-                          this->GetTarget()->GetMakefile()->GetHomeDirectory());
+                         this->GetTarget()->GetMakefile()->GetHomeDirectory());
     cmSystemTools::ReplaceString(command, "$(CMAKE_BINARY_DIR)",
-                    this->GetTarget()->GetMakefile()->GetHomeOutputDirectory());
+                   this->GetTarget()->GetMakefile()->GetHomeOutputDirectory());
     cmSystemTools::ReplaceString(command, "$(ARGS)", "");
 
     if (command.find('$') != std::string::npos)

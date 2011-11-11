@@ -49,7 +49,8 @@ void cmGlobalNinjaGenerator::WriteComment(std::ostream& os,
   os << "# " << replace.substr(lpos) << "\n";
 }
 
-static bool IsIdentChar(char c) {
+static bool IsIdentChar(char c)
+{
   return
     ('a' <= c && c <= 'z') ||
     ('+' <= c && c <= '9') ||  // +,-./ and numbers
@@ -71,7 +72,8 @@ std::string cmGlobalNinjaGenerator::EncodeIdent(const std::string &ident,
   }
 }
 
-std::string cmGlobalNinjaGenerator::EncodeLiteral(const std::string &lit) {
+std::string cmGlobalNinjaGenerator::EncodeLiteral(const std::string &lit)
+{
   std::string result = lit;
   cmSystemTools::ReplaceString(result, "$", "$$");
   return result;
@@ -195,7 +197,7 @@ cmGlobalNinjaGenerator::WriteCustomCommandBuild(const std::string& command,
                                                 const std::string& comment,
                                                 const cmNinjaDeps& outputs,
                                                 const cmNinjaDeps& deps,
-                                               const cmNinjaDeps& orderOnlyDeps)
+                                              const cmNinjaDeps& orderOnlyDeps)
 {
   this->AddCustomCommandRule();
 
@@ -492,7 +494,8 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                     variables);
 }
 
-bool cmGlobalNinjaGenerator::HasRule(const std::string &name) {
+bool cmGlobalNinjaGenerator::HasRule(const std::string &name)
+{
   RulesSetType::const_iterator rule = this->Rules.find(name);
   return (rule != this->Rules.end());
 }
@@ -616,7 +619,8 @@ void cmGlobalNinjaGenerator::WriteAssumedSourceDependencies(std::ostream& os)
 
 void
 cmGlobalNinjaGenerator
-::AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs) {
+::AppendTargetOutputs(cmTarget* target, cmNinjaDeps& outputs)
+{
   std::string name, dir;
   const char* configName =
     target->GetMakefile()->GetDefinition("CMAKE_BUILD_TYPE");
@@ -655,14 +659,16 @@ cmGlobalNinjaGenerator
 
 void
 cmGlobalNinjaGenerator
-::AppendTargetDepends(cmTarget* target, cmNinjaDeps& outputs) {
+::AppendTargetDepends(cmTarget* target, cmNinjaDeps& outputs)
+{
   if (target->GetType() == cmTarget::GLOBAL_TARGET) {
     // Global targets only depend on other utilities, which may not appear in
     // the TargetDepends set (e.g. "all").
     std::set<cmStdString> const& utils = target->GetUtilities();
     outputs.insert(outputs.end(), utils.begin(), utils.end());
   } else {
-    cmTargetDependSet const& targetDeps = this->GetTargetDirectDepends(*target);
+    cmTargetDependSet const& targetDeps =
+      this->GetTargetDirectDepends(*target);
     for (cmTargetDependSet::const_iterator i = targetDeps.begin();
          i != targetDeps.end(); ++i) {
       this->AppendTargetOutputs(*i, outputs);

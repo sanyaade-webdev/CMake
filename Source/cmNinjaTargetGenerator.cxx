@@ -53,10 +53,11 @@ cmNinjaTargetGenerator::New(cmTarget* target)
 }
 
 cmNinjaTargetGenerator::cmNinjaTargetGenerator(cmTarget* target)
-  : Target(target)
-  , Makefile(target->GetMakefile())
-  , LocalGenerator(static_cast<cmLocalNinjaGenerator*>(Makefile->GetLocalGenerator()))
-  , Objects()
+  : Target(target),
+    Makefile(target->GetMakefile()),
+    LocalGenerator(
+      static_cast<cmLocalNinjaGenerator*>(Makefile->GetLocalGenerator())),
+    Objects()
 {
 }
 
@@ -153,13 +154,11 @@ cmNinjaTargetGenerator::ComputeFlagsForObject(cmSourceFile *source,
 
   // Add target-specific and source-specific flags.
   this->LocalGenerator->AppendFlags(flags,
-                                    this->Target->GetProperty("COMPILE_FLAGS"));
+                                   this->Target->GetProperty("COMPILE_FLAGS"));
   this->LocalGenerator->AppendFlags(flags,
                                     source->GetProperty("COMPILE_FLAGS"));
 
   // TODO: Handle Apple frameworks.
-  // Add include directory flags.
-  // this->LocalGenerator->AppendFlags(flags, this->GetFrameworkFlags().c_str());
 
   return flags;
 }
@@ -175,7 +174,8 @@ ComputeDefines(cmSourceFile *source, const std::string& language)
   // Add the export symbol definition for shared library objects.
   if(const char* exportMacro = this->Target->GetExportMacro())
     {
-    this->LocalGenerator->AppendDefines(defines, exportMacro, language.c_str());
+    this->LocalGenerator->AppendDefines(defines, exportMacro,
+                                        language.c_str());
     }
 
   // Add preprocessor definitions for this target and configuration.
@@ -307,7 +307,8 @@ cmNinjaTargetGenerator
   if (depfileFlags) {
     std::string depfileFlagsStr = depfileFlags;
     depfile = "$out.d";
-    cmSystemTools::ReplaceString(depfileFlagsStr, "<DEPFILE>", depfile.c_str());
+    cmSystemTools::ReplaceString(depfileFlagsStr, "<DEPFILE>",
+                                 depfile.c_str());
     flags += " " + depfileFlagsStr;
   }
   vars.Flags = flags.c_str();
@@ -390,8 +391,8 @@ cmNinjaTargetGenerator
   std::string sourceFileName = this->GetSourceFilePath(source);
   explicitDeps.push_back(sourceFileName);
 
-  // Ensure that the target dependencies are built before any source file in the
-  // target, using order-only dependencies.
+  // Ensure that the target dependencies are built before any source file in
+  // the target, using order-only dependencies.
   cmNinjaDeps orderOnlyDeps;
   this->GetLocalGenerator()->AppendTargetDepends(this->Target, orderOnlyDeps);
 

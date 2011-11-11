@@ -84,7 +84,8 @@ void cmNinjaNormalTargetGenerator::WriteLanguagesRules()
     this->WriteLanguageRules(*l);
 }
 
-const char *cmNinjaNormalTargetGenerator::GetVisibleTypeName() const {
+const char *cmNinjaNormalTargetGenerator::GetVisibleTypeName() const
+{
   switch (this->GetTarget()->GetType()) {
     case cmTarget::STATIC_LIBRARY:
       return "static library";
@@ -194,14 +195,14 @@ cmNinjaNormalTargetGenerator
                                           " -E cmake_symlink_executable"
                                           " $in $out && $POST_BUILD",
                                           "Creating executable symlink $out",
-                                          "Rule for creating executable symlink.");
+                                      "Rule for creating executable symlink.");
     else
       this->GetGlobalGenerator()->AddRule("CMAKE_SYMLINK_LIBRARY",
                                           cmakeCommand +
                                           " -E cmake_symlink_library"
                                           " $in $SONAME $out && $POST_BUILD",
                                           "Creating library symlink $out",
-                                          "Rule for creating library symlink.");
+                                         "Rule for creating library symlink.");
   }
 }
 
@@ -224,7 +225,7 @@ cmNinjaNormalTargetGenerator
         }
       }
 
-      // We have archive link commands set.  First, delete the existing archive.
+      // We have archive link commands set. First, delete the existing archive.
       std::vector<std::string> linkCmds;
       linkCmds.push_back("rm -f $out");
 
@@ -289,7 +290,8 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
 
   // Compute the comment.
   std::ostringstream comment;
-  comment << "Link the " << this->GetVisibleTypeName() << " " << targetOutputReal;
+  comment << "Link the " << this->GetVisibleTypeName() << " "
+          << targetOutputReal;
 
   // Compute outputs.
   cmNinjaDeps outputs;
@@ -325,7 +327,8 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
   };
 
   for (unsigned i = 0; i != 3; ++i) {
-    for (std::vector<cmCustomCommand>::const_iterator ci = cmdLists[i]->begin();
+    for (std::vector<cmCustomCommand>::const_iterator
+         ci = cmdLists[i]->begin();
          ci != cmdLists[i]->end(); ++ci) {
       this->GetLocalGenerator()->AppendCustomCommandLines(&*ci,
                                                           *cmdLineLists[i]);
@@ -364,7 +367,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
   if (targetOutput != targetOutputReal) {
     if (this->GetTarget()->GetType() == cmTarget::EXECUTABLE) {
       cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
-                                         "Create executable symlink " + targetOutput,
+                                  "Create executable symlink " + targetOutput,
                                          "CMAKE_SYMLINK_EXECUTABLE",
                                          cmNinjaDeps(1, targetOutput),
                                          cmNinjaDeps(1, targetOutputReal),
@@ -374,7 +377,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
     } else {
       symlinkVars["SONAME"] = this->GetTargetFilePath(this->TargetNameSO);
       cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
-                                         "Create library symlink " + targetOutput,
+                                      "Create library symlink " + targetOutput,
                                          "CMAKE_SYMLINK_LIBRARY",
                                          cmNinjaDeps(1, targetOutput),
                                          cmNinjaDeps(1, targetOutputReal),
@@ -385,6 +388,8 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
   }
 
   // Add aliases for the file name and the target name.
-  this->GetGlobalGenerator()->AddTargetAlias(this->TargetNameOut, this->GetTarget());
-  this->GetGlobalGenerator()->AddTargetAlias(this->GetTargetName(), this->GetTarget());
+  this->GetGlobalGenerator()->AddTargetAlias(this->TargetNameOut,
+                                             this->GetTarget());
+  this->GetGlobalGenerator()->AddTargetAlias(this->GetTargetName(),
+                                             this->GetTarget());
 }
