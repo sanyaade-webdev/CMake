@@ -112,8 +112,7 @@ public:
                         const std::string& comment = "",
                         const std::string& depfile = "",
                         bool restat = false,
-                        bool generator = false,
-                        const cmNinjaVars& variables = cmNinjaVars());
+                        bool generator = false);
 
   /**
    * Write a variable named @a name to @a os with value @a value and an
@@ -223,8 +222,7 @@ public:
                const std::string& comment = "",
                const std::string& depfile = "",
                bool restat = false,
-               bool generator = false,
-               const cmNinjaVars& variables = cmNinjaVars());
+               bool generator = false);
 
   bool HasRule(const std::string& name);
 

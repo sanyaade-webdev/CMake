@@ -155,13 +155,10 @@ void cmGlobalNinjaGenerator::WriteBuild(std::ostream& os,
   os << builds.str();
 
   // Write the variables bound to this build statement.
-  if(!variables.empty())
-    {
-    for(cmNinjaVars::const_iterator i = variables.begin();
-        i != variables.end();
-        ++i)
-      cmGlobalNinjaGenerator::WriteVariable(os, i->first, i->second, "", 1);
-    }
+  for(cmNinjaVars::const_iterator i = variables.begin();
+      i != variables.end();
+      ++i)
+    cmGlobalNinjaGenerator::WriteVariable(os, i->first, i->second, "", 1);
 }
 
 void cmGlobalNinjaGenerator::WritePhonyBuild(std::ostream& os,
@@ -223,8 +220,7 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
                                        const std::string& comment,
                                        const std::string& depfile,
                                        bool restat,
-                                       bool generator,
-                                       const cmNinjaVars& variables)
+                                       bool generator)
 {
   // Make sure the rule has a name.
   if(name.empty())
@@ -277,15 +273,6 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
     {
     cmGlobalNinjaGenerator::Indent(os, 1);
     os << "generator = 1\n";
-    }
-
-  // Write the variables bound to this build statement.
-  if(!variables.empty())
-    {
-    for(cmNinjaVars::const_iterator i = variables.begin();
-        i != variables.end();
-        ++i)
-      cmGlobalNinjaGenerator::WriteVariable(os, i->first, i->second, "", 1);
     }
 }
 
@@ -476,10 +463,9 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                      const std::string& comment,
                                      const std::string& depfile,
                                      bool restat,
-                                     bool generator,
-                                     const cmNinjaVars& variables)
+                                     bool generator)
 {
-  // Do not add twice the same rule.
+  // Do not add the same rule twice.
   if (this->HasRule(name))
     return;
 
@@ -491,8 +477,7 @@ void cmGlobalNinjaGenerator::AddRule(const std::string& name,
                                     comment,
                                     depfile,
                                     restat,
-                                    generator,
-                                    variables);
+                                    generator);
 }
 
 bool cmGlobalNinjaGenerator::HasRule(const std::string &name)
