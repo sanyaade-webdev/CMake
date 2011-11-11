@@ -405,7 +405,7 @@ void cmGlobalNinjaGenerator
       {
       continue;
       }
-    if(*l != "C" && *l != "CXX")
+    if(*l == "Fortran")
       {
       std::string message = "The \"";
       message += this->GetName();
