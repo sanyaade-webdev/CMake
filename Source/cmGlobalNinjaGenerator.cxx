@@ -364,8 +364,8 @@ void cmGlobalNinjaGenerator
   entry.Name = this->GetName();
   entry.Brief = "Generates build.ninja files (experimental).";
   entry.Full =
-    "A build.ninja file is generated into the build tree. Any"
-    "version of the ninja program can build the project through the "
+    "A build.ninja file is generated into the build tree. Recent "
+    "versions of the ninja program can build the project through the "
     "\"all\" target.  An \"install\" target is also provided.";
 }
 
