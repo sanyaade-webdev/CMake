@@ -43,7 +43,7 @@ cmNinjaTargetGenerator::New(cmTarget* target)
         // in every directory, which we don't need.
         cmMakefile *mf = target->GetMakefile();
         if (strcmp(mf->GetStartDirectory(), mf->GetHomeDirectory()) == 0)
-          return new cmNinjaUtilityTargetGenerator(target);;
+          return new cmNinjaUtilityTargetGenerator(target);
         // else fallthrough
       }
 

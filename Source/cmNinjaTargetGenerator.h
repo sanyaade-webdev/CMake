@@ -33,7 +33,7 @@ public:
   cmNinjaTargetGenerator(cmTarget* target);
 
   /// Destructor.
-  ~cmNinjaTargetGenerator();
+  virtual ~cmNinjaTargetGenerator();
 
   virtual void Generate() = 0;
 

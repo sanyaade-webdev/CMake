@@ -263,11 +263,15 @@ cmNinjaNormalTargetGenerator
       case cmTarget::EXECUTABLE:
         linkCmdVar += "_LINK_EXECUTABLE";
         break;
+      default:
+        assert(0 && "Unexpected target type");
       }
       const char *linkCmd =
         this->GetMakefile()->GetRequiredDefinition(linkCmdVar.c_str());
       return std::vector<std::string>(1, linkCmd);
     }
+    default:
+      assert(0 && "Unexpected target type");
   }
 }
 
