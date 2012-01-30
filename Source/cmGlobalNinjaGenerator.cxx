@@ -632,7 +632,7 @@ cmGlobalNinjaGenerator
   case cmTarget::STATIC_LIBRARY:
   case cmTarget::MODULE_LIBRARY:
     outputs.push_back(ng->ConvertToNinjaPath(
-      target->GetFullPath(configName).c_str()));
+        target->GetLocation(configName)));
     break;
 
   case cmTarget::UTILITY: {

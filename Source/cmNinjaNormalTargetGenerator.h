@@ -33,6 +33,7 @@ private:
   void WriteLinkRule();
   void WriteLinkStatement();
   std::vector<std::string> ComputeLinkCmd();
+  void CreateAppBundle(const std::string& targetName, std::string& outpath);
 
 private:
   // Target name info.

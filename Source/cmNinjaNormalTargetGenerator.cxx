@@ -292,6 +292,34 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
 {
   cmTarget::TargetType targetType = this->GetTarget()->GetType();
 
+  std::string targetOutput = this->GetTargetFilePath(this->TargetNameOut);
+  std::string targetOutputReal = this->GetTargetFilePath(this->TargetNameReal);
+
+  std::string targetOutputImplib = ConvertToNinjaPath(
+    this->GetTarget()->GetFullPath(this->GetConfigName(),
+                                   /*implib=*/true).c_str());
+
+  if(this->GetTarget()->IsAppBundleOnApple()) {
+    // Get the name of the executable to generate.
+    std::string targetName;
+    std::string targetNameReal;
+    std::string targetNameImport;
+    std::string targetNamePDB;
+    this->GetTarget()->GetExecutableNames(targetName,
+                                          targetNameReal,
+                                          targetNameImport,
+                                          targetNamePDB,
+                                          this->GetConfigName());
+
+    // Create the app bundle
+    std::string outpath;
+    this->CreateAppBundle(targetName, outpath);
+
+    // Calculate the output path
+    targetOutput = outpath + targetName;
+    targetOutputReal = outpath + targetNameReal;
+  }
+
   // Write comments.
   cmGlobalNinjaGenerator::WriteDivider(this->GetBuildFileStream());
   this->GetBuildFileStream()
@@ -303,16 +331,6 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
 
   cmNinjaDeps emptyDeps;
   cmNinjaVars vars;
-
-  std::string targetOutput = ConvertToNinjaPath(
-    this->GetTarget()->GetFullPath(this->GetConfigName()).c_str());
-  std::string targetOutputReal = ConvertToNinjaPath(
-    this->GetTarget()->GetFullPath(this->GetConfigName(),
-                                   /*implib=*/false,
-                                   /*realpath=*/true).c_str());
-  std::string targetOutputImplib = ConvertToNinjaPath(
-    this->GetTarget()->GetFullPath(this->GetConfigName(),
-                                   /*implib=*/true).c_str());
 
   // Compute the comment.
   std::ostringstream comment;
@@ -452,4 +470,24 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
                                              this->GetTarget());
   this->GetGlobalGenerator()->AddTargetAlias(this->GetTargetName(),
                                              this->GetTarget());
+}
+
+void cmNinjaNormalTargetGenerator::CreateAppBundle(const std::string& targetName,
+                                                   std::string& outpath)
+{
+  outpath = this->GetTargetOutputDir() + "/" +
+      this->TargetNameOut + ".app/Contents/MacOS";
+
+  // Compute bundle directory names.
+  cmSystemTools::MakeDirectory(outpath.c_str());
+  this->GetMakefile()->AddCMakeOutputFile(outpath.c_str());
+  outpath += "/";
+
+  // Configure the Info.plist file.  Note that it needs the executable name
+  // to be set.
+  std::string plist = outpath + "Info.plist";
+  this->GetLocalGenerator()->GenerateAppleInfoPList(this->GetTarget(),
+                                                    targetName.c_str(),
+                                                    plist.c_str());
+  this->GetMakefile()->AddCMakeOutputFile(plist.c_str());
 }
