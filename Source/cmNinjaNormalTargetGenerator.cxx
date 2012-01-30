@@ -152,8 +152,14 @@ cmNinjaNormalTargetGenerator
     vars.TargetVersionMajor = targetVersionMajor.c_str();
     vars.TargetVersionMinor = targetVersionMinor.c_str();
 
+    std::string flags = "$FLAGS";
+    this->GetLocalGenerator()->AddArchitectureFlags(flags,
+                                                    this->GetTarget(),
+                                                    this->TargetLinkLanguage,
+                                                    this->GetConfigName());
+    vars.Flags = flags.c_str();
+
     vars.LinkLibraries = "$LINK_LIBRARIES";
-    vars.Flags = "$FLAGS";
     vars.LinkFlags = "$LINK_FLAGS";
 
     std::string langFlags;
