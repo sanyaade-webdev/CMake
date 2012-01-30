@@ -29,6 +29,9 @@ public:
 private:
   std::string LanguageLinkerRule() const;
   const char* GetVisibleTypeName() const;
+  cmNinjaDeps ComputeLinkDeps() const;
+  void WriteResourceBuildStatement(cmSourceFile* source);
+  void WriteResourceRule();
   void WriteLanguagesRules();
   void WriteLinkRule();
   void WriteLinkStatement();
@@ -43,6 +46,7 @@ private:
   std::string TargetNameImport;
   std::string TargetNamePDB;
   const char *TargetLinkLanguage;
+  cmNinjaDeps Resources;
 };
 
 #endif // ! cmNinjaNormalTargetGenerator_h

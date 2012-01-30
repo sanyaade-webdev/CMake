@@ -270,6 +270,11 @@ std::string cmNinjaTargetGenerator::GetTargetName() const
   return this->Target->GetName();
 }
 
+void cmNinjaTargetGenerator::WriteResourceBuildStatement(cmSourceFile* source)
+{
+  return;
+}
+
 void
 cmNinjaTargetGenerator
 ::WriteLanguageRules(const std::string& language)
@@ -367,6 +372,12 @@ cmNinjaTargetGenerator
   if (!language) {
     if (source->GetPropertyAsBool("EXTERNAL_OBJECT"))
       this->Objects.push_back(this->GetSourceFilePath(source));
+    else {
+      cmTarget::SourceFileFlags tsFlags =
+          this->GetTarget()->GetTargetSourceFileFlags(source);
+      if(tsFlags.Type == cmTarget::SourceFileTypeResource)
+        this->WriteResourceBuildStatement(source);
+    }
     return;
   }
 

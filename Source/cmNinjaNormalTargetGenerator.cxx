@@ -56,8 +56,8 @@ void cmNinjaNormalTargetGenerator::Generate()
     return;
   }
 
-  // Write the rules for each language.
   this->WriteLanguagesRules();
+  this->WriteResourceRule();
 
   // Write the build statements
   this->WriteObjectBuildStatements();
@@ -67,6 +67,39 @@ void cmNinjaNormalTargetGenerator::Generate()
 
   this->GetBuildFileStream() << "\n";
   this->GetRulesFileStream() << "\n";
+}
+
+void
+cmNinjaNormalTargetGenerator::WriteResourceBuildStatement(cmSourceFile* source)
+{
+  std::string inPath = this->GetSourceFilePath(source);
+  std::string outPath = this->GetTargetOutputDir() + "/" + this->TargetNameOut
+      + ".app/Contents/Resources/" + cmSystemTools::GetFilenameName(inPath);
+
+  cmNinjaVars vars;
+  cmNinjaDeps inputs, outputs, unused;
+
+  inputs.push_back(inPath);
+  outputs.push_back(outPath);
+  Resources.push_back(outPath);
+
+  cmGlobalNinjaGenerator::WriteBuild(this->GetBuildFileStream(),
+                                     std::string("Copying resource ") + outPath,
+                                     "COPY_RESOURCE",
+                                     outputs,
+                                     inputs,
+                                     unused,
+                                     unused,
+                                     vars);
+}
+
+void cmNinjaNormalTargetGenerator::WriteResourceRule()
+{
+  if(this->GetTarget()->IsAppBundleOnApple()) {
+    this->GetGlobalGenerator()->AddRule("COPY_RESOURCE",
+                                        "cp $in $out",
+                                        "Copy a bundled resource");
+  }
 }
 
 void cmNinjaNormalTargetGenerator::WriteLanguagesRules()
@@ -101,6 +134,13 @@ const char *cmNinjaNormalTargetGenerator::GetVisibleTypeName() const
     default:
       return 0;
   }
+}
+
+cmNinjaDeps cmNinjaNormalTargetGenerator::ComputeLinkDeps() const
+{
+  cmNinjaDeps deps = cmNinjaTargetGenerator::ComputeLinkDeps();
+  deps.insert(deps.end(), Resources.begin(), Resources.end());
+  return deps;
 }
 
 std::string
@@ -475,17 +515,18 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
 void cmNinjaNormalTargetGenerator::CreateAppBundle(const std::string& targetName,
                                                    std::string& outpath)
 {
-  outpath = this->GetTargetOutputDir() + "/" +
-      this->TargetNameOut + ".app/Contents/MacOS";
+  std::string contentsDir = this->GetTargetOutputDir() + "/" +
+      this->TargetNameOut + ".app/Contents/";
+  outpath = contentsDir + "MacOS/";
 
   // Compute bundle directory names.
   cmSystemTools::MakeDirectory(outpath.c_str());
   this->GetMakefile()->AddCMakeOutputFile(outpath.c_str());
-  outpath += "/";
+
 
   // Configure the Info.plist file.  Note that it needs the executable name
   // to be set.
-  std::string plist = outpath + "Info.plist";
+  std::string plist = contentsDir + "Info.plist";
   this->GetLocalGenerator()->GenerateAppleInfoPList(this->GetTarget(),
                                                     targetName.c_str(),
                                                     plist.c_str());

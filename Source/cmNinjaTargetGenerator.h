@@ -83,7 +83,7 @@ protected:
   }
 
   /// @return the list of link dependency for the given target @a target.
-  cmNinjaDeps ComputeLinkDeps() const;
+  virtual cmNinjaDeps ComputeLinkDeps() const;
 
   /// @return the source file path for the given @a source.
   std::string GetSourceFilePath(cmSourceFile* source) const;
@@ -96,6 +96,9 @@ protected:
 
   /// @return the output path for the target.
   virtual std::string GetTargetOutputDir() const;
+
+  /// Override this to handle resource building
+  virtual void WriteResourceBuildStatement(cmSourceFile* source);
 
   void WriteLanguageRules(const std::string& language);
   void WriteCompileRule(const std::string& language);
