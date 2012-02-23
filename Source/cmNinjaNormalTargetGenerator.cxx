@@ -100,7 +100,7 @@ void cmNinjaNormalTargetGenerator::WriteResourceRule()
 {
   if(this->GetTarget()->IsAppBundleOnApple()) {
     this->GetGlobalGenerator()->AddRule("COPY_RESOURCE",
-                                        "cp $in $out",
+                                        "cp -r $in $out",
                                         "Copy a bundled resource");
   }
 }
