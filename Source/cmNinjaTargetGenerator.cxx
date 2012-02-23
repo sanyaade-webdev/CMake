@@ -375,7 +375,8 @@ cmNinjaTargetGenerator
     else {
       cmTarget::SourceFileFlags tsFlags =
           this->GetTarget()->GetTargetSourceFileFlags(source);
-      if(tsFlags.Type == cmTarget::SourceFileTypeResource)
+      if(tsFlags.Type == cmTarget::SourceFileTypeResource ||
+         tsFlags.Type == cmTarget::SourceFileTypeMacContent)
         this->WriteResourceBuildStatement(source);
     }
     return;

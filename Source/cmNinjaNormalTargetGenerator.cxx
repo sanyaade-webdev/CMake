@@ -72,9 +72,12 @@ void cmNinjaNormalTargetGenerator::Generate()
 void
 cmNinjaNormalTargetGenerator::WriteResourceBuildStatement(cmSourceFile* source)
 {
+  cmTarget::SourceFileFlags tsFlags =
+      this->GetTarget()->GetTargetSourceFileFlags(source);
+
   std::string inPath = this->GetSourceFilePath(source);
   std::string outPath = this->GetTargetOutputDir() + "/" + this->TargetNameOut
-      + ".app/Contents/Resources/" + cmSystemTools::GetFilenameName(inPath);
+      + ".app/Contents/" + tsFlags.MacFolder + "/" + cmSystemTools::GetFilenameName(inPath);
 
   cmNinjaVars vars;
   cmNinjaDeps inputs, outputs, unused;

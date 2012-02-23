@@ -1825,6 +1825,7 @@ void cmTarget::ConstructSourceFileFlags()
       if(flags.Type == cmTarget::SourceFileTypeNormal)
         {
         flags.MacFolder = location;
+
         if(strcmp(location, "Resources") == 0)
           {
           flags.Type = cmTarget::SourceFileTypeResource;
